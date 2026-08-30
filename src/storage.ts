@@ -1,6 +1,6 @@
 import type { OracleState } from "./types";
 
-const STORAGE_KEY = "your-own-houdini:oracle-state";
+const STORAGE_KEY = "your-own-houdini:oracle-state:v2";
 
 function createAnonymousId(): string {
   return crypto.randomUUID();
