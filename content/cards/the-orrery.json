@@ -1,0 +1,22 @@
+{
+  "id": "the-orrery",
+  "title": "THE ORRERY",
+  "message": "Understanding the mechanism does not give you control over it.",
+  "meaning": "The Orrery represents systems that can be studied without ever becoming fully controllable. You may understand every visible part and still remain inside something larger than your explanation.\n\nOne impossible intersection in the mechanism hints that the model itself may be incomplete.",
+  "rarity": "ARCANE",
+  "theme": "KNOWLEDGE",
+  "state": "DISCOVERY",
+  "tags": ["KNOWLEDGE", "SYSTEM", "LIMITS"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "ACTION", "CHANGE"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-book" },
+    { "type": "journey-days", "minimum": 9 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "ORRERY_PATTERN" },
+  "cooldown": 44,
+  "element": "AETHER",
+  "symbol": "⊛",
+  "imageKey": "the-orrery",
+  "imageAlt": "Official card artwork for The Orrery"
+}

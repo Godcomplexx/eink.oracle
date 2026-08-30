@@ -1,0 +1,25 @@
+{
+  "id": "the-citadel",
+  "title": "THE CITADEL",
+  "message": "You can see where you want to be. That doesn't mean you know the way there.",
+  "meaning": "The Citadel represents a destination that is visible but structurally unreachable from the current path. Its appearance suggests that another route exists — even if Houdini does not show it yet.",
+  "rarity": "ARCANE",
+  "theme": "AMBITION",
+  "state": "DISCOVERY",
+  "tags": ["AMBITION", "DISTANCE", "HIDDEN PATH"],
+  "loreId": null,
+  "nextNodes": ["ACTION", "CHANGE"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-lock" },
+    { "type": "unlocked-node", "node": "HIDDEN_PATH" }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "CITADEL_ROUTE" },
+  "cooldown": 45,
+  "element": "EARTH",
+  "symbol": "△",
+  "imageKey": "the-citadel",
+  "imageAlt": "Official card artwork for The Citadel",
+  "mechanic": "Hidden-path ARCANE card. It requires THE LOCK and HIDDEN_PATH, then unlocks the CITADEL_ROUTE node.",
+  "showcase": true,
+  "visibility": "PUBLIC"
+}

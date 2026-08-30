@@ -1,0 +1,19 @@
+{
+  "id": "the-well",
+  "title": "THE WELL",
+  "message": "Not everything hidden is empty.",
+  "meaning": "The Well represents depth without proof. You cannot see what is below, but that does not mean there is nothing there. It asks you to tolerate not knowing before deciding what something contains.",
+  "rarity": "COMMON",
+  "theme": "STILLNESS",
+  "state": "OPENING",
+  "tags": ["DEPTH", "UNKNOWN", "INTROSPECTION"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "DISCOVERY"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 25,
+  "element": "WATER",
+  "symbol": "◎",
+  "imageKey": "the-well",
+  "imageAlt": "Official card artwork for The Well"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "the-door",
+  "title": "THE DOOR",
+  "message": "It is not asking whether you are ready.",
+  "meaning": "A threshold, an available beginning, and the choice to move before certainty arrives.",
+  "rarity": "COMMON",
+  "theme": "BEGINNING",
+  "state": "OPENING",
+  "tags": ["threshold", "choice", "beginning"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "ACTION"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 21,
+  "element": "AIR",
+  "symbol": "□",
+  "imageKey": null,
+  "imageAlt": "Symbolic placeholder artwork for The Door",
+  "status": "draft"
+}

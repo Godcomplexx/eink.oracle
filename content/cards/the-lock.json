@@ -1,0 +1,25 @@
+{
+  "id": "the-lock",
+  "title": "THE LOCK",
+  "message": "This is not the way. Yet.",
+  "meaning": "The Lock appears when progress exists, but access does not. It does not mean never. It means that something required by this path has not happened yet.",
+  "rarity": "RARE",
+  "theme": "PATH",
+  "state": "CHANGE",
+  "tags": ["PATH", "DELAY", "CONDITION"],
+  "loreId": "escape-set",
+  "nextNodes": ["REFLECTION", "RELEASE"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-door" },
+    { "type": "seen-card", "cardId": "the-key" }
+  ],
+  "graphEffect": { "type": "none" },
+  "cooldown": 30,
+  "element": "EARTH",
+  "symbol": "▣",
+  "imageKey": "the-lock",
+  "imageAlt": "Official card artwork for The Lock",
+  "mechanic": "Conditional RARE card. It becomes eligible only after both THE DOOR and THE KEY have been seen.",
+  "showcase": true,
+  "visibility": "PUBLIC"
+}

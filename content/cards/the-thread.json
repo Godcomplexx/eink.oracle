@@ -1,0 +1,19 @@
+{
+  "id": "the-thread",
+  "title": "THE THREAD",
+  "message": "Some connections remain even when you cannot see where they lead.",
+  "meaning": "The Thread represents a connection that still exists despite distance, silence or uncertainty. You may not know what holds the other end.",
+  "rarity": "COMMON",
+  "theme": "CONNECTION",
+  "state": "RENEWAL",
+  "tags": ["CONNECTION", "DISTANCE", "BOND"],
+  "loreId": null,
+  "nextNodes": ["OPENING", "DISCOVERY", "REFLECTION"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 25,
+  "element": "AETHER",
+  "symbol": "∿",
+  "imageKey": "the-thread",
+  "imageAlt": "Official card artwork for The Thread"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "rosabelle",
+  "title": "ROSABELLE",
+  "message": "The silence was real. The meaning was yours.",
+  "meaning": "A rose. A sealed message. An empty chair.\n\nRosabelle belongs to the hidden Houdini archive. It refers to the attempt to leave behind a recognizable message after death — and to the silence that followed.\n\nIt promises nothing supernatural.",
+  "rarity": "HOUDINI",
+  "theme": "SILENCE",
+  "state": "RELEASE",
+  "tags": ["HOUDINI", "SILENCE", "MEANING"],
+  "loreId": "houdini-rosabelle",
+  "nextNodes": ["RENEWAL", "OPENING"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-empty-chair" },
+    { "type": "seen-card", "cardId": "the-fracture" },
+    { "type": "unlocked-node", "node": "FRACTURE_TRACE" },
+    { "type": "journey-days", "minimum": 12 }
+  ],
+  "graphEffect": { "type": "none" },
+  "cooldown": 90,
+  "element": "AETHER",
+  "symbol": "✣",
+  "imageKey": "rosabelle",
+  "imageAlt": "Official card artwork for Rosabelle",
+  "mechanic": "Secret lore card. It remains absent from the visible collection until discovered and requires the empty chair, the fracture trace and a sufficiently long journey.",
+  "showcase": true,
+  "visibility": "HIDDEN_UNTIL_DISCOVERED"
+}

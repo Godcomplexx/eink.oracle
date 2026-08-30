@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "types": [
+    {
+      "id": "COMMON",
+      "description": "The ordinary language of Houdini. Cards about reflection, movement, relationships and everyday change.",
+      "showcaseCardId": "the-mirror",
+      "countVisibility": "VISIBLE"
+    },
+    {
+      "id": "RARE",
+      "description": "Cards that depend on where you have already been. Chance alone may not be enough.",
+      "showcaseCardId": "the-lock",
+      "countVisibility": "VISIBLE"
+    },
+    {
+      "id": "ARCANE",
+      "description": "Hidden structures, inaccessible paths and states that require specific journeys to reach.",
+      "showcaseCardId": "the-citadel",
+      "countVisibility": "VISIBLE"
+    },
+    {
+      "id": "ANOMALY",
+      "description": "Cards that do not completely obey the rules of the deck.",
+      "showcaseCardId": "the-fracture",
+      "countVisibility": "VISIBLE"
+    },
+    {
+      "id": "HOUDINI",
+      "description": "Hidden cards connected to the history and mythology surrounding Houdini. Their number and conditions are undisclosed.",
+      "showcaseCardId": "rosabelle",
+      "countVisibility": "HIDDEN"
+    }
+  ]
+}

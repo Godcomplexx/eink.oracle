@@ -1,0 +1,19 @@
+{
+  "id": "the-book",
+  "title": "THE BOOK",
+  "message": "Knowing where to look is not the same as being ready to read.",
+  "meaning": "The Book is knowledge that already exists but has not yet been opened. Sometimes the information is available before you are ready to understand what it changes.",
+  "rarity": "COMMON",
+  "theme": "KNOWLEDGE",
+  "state": "DISCOVERY",
+  "tags": ["KNOWLEDGE", "QUESTION", "DISCOVERY"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "ACTION"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 24,
+  "element": "AIR",
+  "symbol": "▤",
+  "imageKey": "the-book",
+  "imageAlt": "Official card artwork for The Book"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "the-ascent",
+  "title": "THE ASCENT",
+  "message": "Progress does not promise an arrival.",
+  "meaning": "The Ascent is movement without certainty of destination. You can keep climbing, changing and becoming — and still not know where the path ultimately leads.\n\nThe impossible stairs suggest that progress is not always linear.",
+  "rarity": "ARCANE",
+  "theme": "CHANGE",
+  "state": "CHANGE",
+  "tags": ["CHANGE", "PROGRESS", "UNCERTAINTY"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "ACTION", "RENEWAL"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-bell" },
+    { "type": "journey-days", "minimum": 8 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "ASCENT_ROUTE" },
+  "cooldown": 42,
+  "element": "AIR",
+  "symbol": "◹",
+  "imageKey": "the-ascent",
+  "imageAlt": "Official card artwork for The Ascent"
+}

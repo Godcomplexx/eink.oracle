@@ -1,0 +1,23 @@
+{
+  "id": "the-machine",
+  "title": "THE MACHINE",
+  "message": "It repeats exactly what you taught it to repeat.",
+  "meaning": "Systems, habits, and feedback loops that continue producing the behavior placed inside them.",
+  "rarity": "ARCANE",
+  "theme": "SYSTEM",
+  "state": "CHANGE",
+  "tags": ["system", "loop", "anomaly"],
+  "loreId": "houdini-machine",
+  "nextNodes": ["ACTION", "RENEWAL"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-signal" },
+    { "type": "journey-days", "minimum": 7 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "ANOMALY" },
+  "cooldown": 40,
+  "element": "AETHER",
+  "symbol": "⌘",
+  "imageKey": null,
+  "imageAlt": "Symbolic placeholder artwork for The Machine",
+  "status": "draft"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "the-seed",
+  "title": "THE SEED",
+  "message": "Everything old was once this small.",
+  "meaning": "The Seed is the beginning that does not yet resemble its outcome. Growth can be almost invisible while it is happening.",
+  "rarity": "COMMON",
+  "theme": "CHANGE",
+  "state": "OPENING",
+  "tags": ["CHANGE", "BEGINNING", "GROWTH"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "CHANGE", "RENEWAL"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 22,
+  "element": "EARTH",
+  "symbol": "◌",
+  "imageKey": "the-seed",
+  "imageAlt": "Official card artwork for The Seed"
+}

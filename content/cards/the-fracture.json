@@ -1,0 +1,25 @@
+{
+  "id": "the-fracture",
+  "title": "THE FRACTURE",
+  "message": "Something doesn't fit because it isn't supposed to.",
+  "meaning": "The Fracture is not part of the normal progression. It appears when two paths, states or rules that should remain separate begin to overlap.",
+  "rarity": "ANOMALY",
+  "theme": "CONTRADICTION",
+  "state": "CHANGE",
+  "tags": ["DISRUPTION", "CONTRADICTION", "ERROR"],
+  "loreId": "fracture-trace",
+  "nextNodes": ["REFLECTION", "RELEASE", "OPENING"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-citadel" },
+    { "type": "unlocked-node", "node": "CITADEL_ROUTE" }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "FRACTURE_TRACE" },
+  "cooldown": 60,
+  "element": "AETHER",
+  "symbol": "╱",
+  "imageKey": "the-fracture",
+  "imageAlt": "Official card artwork for The Fracture",
+  "mechanic": "Rule-breaking ANOMALY card. It appears where the Citadel branch overlaps another state and permanently leaves FRACTURE_TRACE in the graph.",
+  "showcase": true,
+  "visibility": "PUBLIC"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "the-veil",
+  "title": "THE VEIL",
+  "message": "You are allowed to look without being ready to cross.",
+  "meaning": "The Veil separates what can be sensed from what can actually be known. Something exists behind it, but the card refuses to decide whether uncovering it is progress.\n\nThe small opening is enough. You do not need to tear everything apart.",
+  "rarity": "RARE",
+  "theme": "HIDDEN",
+  "state": "RENEWAL",
+  "tags": ["HIDDEN", "CURIOSITY", "BOUNDARY"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "DISCOVERY"],
+  "unlockConditions": [{ "type": "journey-days", "minimum": 7 }],
+  "graphEffect": { "type": "unlock-node", "node": "VEIL_GLIMPSE" },
+  "cooldown": 36,
+  "element": "WATER",
+  "symbol": "░",
+  "imageKey": "the-veil",
+  "imageAlt": "Official card artwork for The Veil"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "the-key",
+  "title": "THE KEY",
+  "message": "Some doors appear only after you have the means to leave.",
+  "meaning": "Access, permission, and recognizing that a solution can also create a new responsibility.",
+  "rarity": "RARE",
+  "theme": "ACCESS",
+  "state": "ACTION",
+  "tags": ["key", "permission", "hidden-path"],
+  "loreId": "escape-set",
+  "nextNodes": ["CHANGE", "DISCOVERY"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-door" },
+    { "type": "journey-days", "minimum": 3 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "HIDDEN_PATH" },
+  "cooldown": 30,
+  "element": "FIRE",
+  "symbol": "⚿",
+  "imageKey": null,
+  "imageAlt": "Symbolic placeholder artwork for The Key",
+  "status": "draft"
+}

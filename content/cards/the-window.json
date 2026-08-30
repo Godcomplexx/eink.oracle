@@ -1,0 +1,19 @@
+{
+  "id": "the-window",
+  "title": "THE WINDOW",
+  "message": "You can see another life without knowing how to reach it.",
+  "meaning": "The Window is possibility seen from the wrong side of distance. What lies beyond it may be completely real — but seeing something and having access to it are not the same thing.\n\nIt is not an invitation. It is evidence that another direction exists.",
+  "rarity": "RARE",
+  "theme": "POSSIBILITY",
+  "state": "DISCOVERY",
+  "tags": ["POSSIBILITY", "DISTANCE", "LONGING"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "OPENING"],
+  "unlockConditions": [{ "type": "journey-days", "minimum": 5 }],
+  "graphEffect": { "type": "unlock-node", "node": "DISTANT_VIEW" },
+  "cooldown": 34,
+  "element": "AETHER",
+  "symbol": "⊡",
+  "imageKey": "the-window",
+  "imageAlt": "Official card artwork for The Window"
+}

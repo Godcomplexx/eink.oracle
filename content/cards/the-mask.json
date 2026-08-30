@@ -1,0 +1,19 @@
+{
+  "id": "the-mask",
+  "title": "THE MASK",
+  "message": "A role can survive long after you stop needing it.",
+  "meaning": "The Mask is an identity that once had a purpose. Protection, performance, adaptation — none of them are necessarily false. The question is whether you are still choosing the role or simply forgetting to remove it.",
+  "rarity": "COMMON",
+  "theme": "SELF",
+  "state": "REFLECTION",
+  "tags": ["SELF", "IDENTITY", "PROTECTION"],
+  "loreId": null,
+  "nextNodes": ["RELEASE", "DISCOVERY"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 24,
+  "element": "EARTH",
+  "symbol": "⌣",
+  "imageKey": "the-mask",
+  "imageAlt": "Official card artwork for The Mask"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "the-moon",
+  "title": "THE MOON",
+  "message": "Not everything unclear is trying to deceive you.",
+  "meaning": "Uncertainty, partial knowledge, and allowing ambiguity without inventing a false answer.",
+  "rarity": "COMMON",
+  "theme": "UNCERTAINTY",
+  "state": "REFLECTION",
+  "tags": ["shadow", "cycle", "uncertainty"],
+  "loreId": null,
+  "nextNodes": ["RELEASE", "RENEWAL"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 28,
+  "element": "WATER",
+  "symbol": "◒",
+  "imageKey": null,
+  "imageAlt": "Symbolic placeholder artwork for The Moon",
+  "status": "draft"
+}

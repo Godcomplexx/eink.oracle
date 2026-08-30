@@ -1,0 +1,22 @@
+{
+  "id": "the-mirror",
+  "title": "THE MIRROR",
+  "message": "You don't need another opinion. You already know.",
+  "meaning": "The Mirror is about recognition rather than discovery. The answer may already be present — the difficult part is accepting that it is yours.",
+  "rarity": "COMMON",
+  "theme": "SELF",
+  "state": "REFLECTION",
+  "tags": ["SELF", "REFLECTION", "TRUTH"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "RELEASE", "CHANGE"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 24,
+  "element": "WATER",
+  "symbol": "◉",
+  "imageKey": "the-mirror",
+  "imageAlt": "An eye reflected in an antique standing mirror",
+  "mechanic": "CORE card. Available from the beginning of most paths and governed only by its cooldown.",
+  "showcase": true,
+  "visibility": "PUBLIC"
+}

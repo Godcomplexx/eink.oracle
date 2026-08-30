@@ -1,0 +1,23 @@
+{
+  "id": "the-silence",
+  "title": "THE SILENCE",
+  "message": "No answer arrived. Notice what you supplied in its place.",
+  "meaning": "Silence, projection, and the story the mind creates when no external answer is available.",
+  "rarity": "ANOMALY",
+  "theme": "VOID",
+  "state": "RENEWAL",
+  "tags": ["silence", "void", "anomaly"],
+  "loreId": "houdini-silence",
+  "nextNodes": ["OPENING"],
+  "unlockConditions": [
+    { "type": "unlocked-node", "node": "ANOMALY" },
+    { "type": "journey-days", "minimum": 10 }
+  ],
+  "graphEffect": { "type": "none" },
+  "cooldown": 60,
+  "element": "AETHER",
+  "symbol": "∅",
+  "imageKey": null,
+  "imageAlt": "Symbolic placeholder artwork for The Silence",
+  "status": "draft"
+}

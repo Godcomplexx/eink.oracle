@@ -1,0 +1,19 @@
+{
+  "id": "the-bell",
+  "title": "THE BELL",
+  "message": "Some warnings arrive after you've already understood.",
+  "meaning": "The Bell is a signal without a clear moment of origin. Something has already changed; the question is whether you noticed before it needed to announce itself.\n\nThe broken rope matters: the bell may have sounded without anyone pulling it.",
+  "rarity": "RARE",
+  "theme": "SIGNAL",
+  "state": "CHANGE",
+  "tags": ["SIGNAL", "WARNING", "AWARENESS"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "ACTION", "OPENING"],
+  "unlockConditions": [{ "type": "journey-days", "minimum": 6 }],
+  "graphEffect": { "type": "none" },
+  "cooldown": 32,
+  "element": "AIR",
+  "symbol": "◠",
+  "imageKey": "the-bell",
+  "imageAlt": "Official card artwork for The Bell"
+}

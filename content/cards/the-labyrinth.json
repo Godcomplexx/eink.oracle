@@ -1,0 +1,22 @@
+{
+  "id": "the-labyrinth",
+  "title": "THE LABYRINTH",
+  "message": "Seeing the path is not the same as understanding it.",
+  "meaning": "The Labyrinth is a structure that becomes less understandable the more of it you can see. Every route appears connected, yet some paths contradict each other, loop back or lead somewhere they should not.\n\nIt asks whether being lost is always the same as going nowhere.",
+  "rarity": "ARCANE",
+  "theme": "PATH",
+  "state": "ACTION",
+  "tags": ["PATH", "COMPLEXITY", "DISORIENTATION"],
+  "loreId": null,
+  "nextNodes": ["OPENING", "DISCOVERY", "REFLECTION", "CHANGE"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-threshold" },
+    { "type": "journey-days", "minimum": 10 }
+  ],
+  "graphEffect": { "type": "return-to-previous" },
+  "cooldown": 46,
+  "element": "AIR",
+  "symbol": "◫",
+  "imageKey": "the-labyrinth",
+  "imageAlt": "Official card artwork for The Labyrinth"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "the-empty-chair",
+  "title": "THE EMPTY CHAIR",
+  "message": "Stop waiting for someone who isn't coming.",
+  "meaning": "The Empty Chair is absence made visible. It asks what remains when the person, answer or event you were expecting never arrives.",
+  "rarity": "COMMON",
+  "theme": "STILLNESS",
+  "state": "RELEASE",
+  "tags": ["STILLNESS", "ABSENCE", "RELEASE"],
+  "loreId": null,
+  "nextNodes": ["RENEWAL", "OPENING"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 27,
+  "element": "AETHER",
+  "symbol": "⌑",
+  "imageKey": "the-empty-chair",
+  "imageAlt": "Official card artwork for The Empty Chair"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "the-signal",
+  "title": "THE SIGNAL",
+  "message": "The pattern is clearer when you stop calling it noise.",
+  "meaning": "Attention to recurring patterns and the possibility that useful information is already present.",
+  "rarity": "COMMON",
+  "theme": "ATTENTION",
+  "state": "DISCOVERY",
+  "tags": ["pattern", "message", "noise"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "ACTION"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 26,
+  "element": "AIR",
+  "symbol": "⌁",
+  "imageKey": null,
+  "imageAlt": "Symbolic placeholder artwork for The Signal",
+  "status": "draft"
+}

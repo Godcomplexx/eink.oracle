@@ -1,0 +1,19 @@
+{
+  "id": "the-threshold",
+  "title": "THE THRESHOLD",
+  "message": "The next step does not require certainty.",
+  "meaning": "The Threshold appears when the decision matters more than knowing what waits beyond it. You do not need a complete map before moving forward.",
+  "rarity": "COMMON",
+  "theme": "PATH",
+  "state": "ACTION",
+  "tags": ["PATH", "DECISION", "TRANSITION"],
+  "loreId": null,
+  "nextNodes": ["CHANGE", "DISCOVERY", "RELEASE"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 23,
+  "element": "AIR",
+  "symbol": "⊓",
+  "imageKey": "the-threshold",
+  "imageAlt": "Official card artwork for The Threshold"
+}
