@@ -24,6 +24,7 @@ import type { User } from "@supabase/supabase-js";
 
 import cardBackUrl from "./assets/ui/card-back.webp";
 import handUrl from "./assets/ui/hand.webp";
+import aetherElementUrl from "./assets/elements/aether.webp";
 import airElementUrl from "./assets/elements/air.webp";
 import earthElementUrl from "./assets/elements/earth.webp";
 import fireElementUrl from "./assets/elements/fire.webp";
@@ -402,7 +403,8 @@ function makeCardOverlay(card: OracleCard, record: DrawRecord): HTMLElement {
   return overlay;
 }
 
-const ELEMENT_ART_URL: Partial<Record<OracleCard["element"], string>> = {
+const ELEMENT_ART_URL: Record<OracleCard["element"], string> = {
+  AETHER: aetherElementUrl,
   AIR: airElementUrl,
   EARTH: earthElementUrl,
   FIRE: fireElementUrl,
@@ -411,18 +413,7 @@ const ELEMENT_ART_URL: Partial<Record<OracleCard["element"], string>> = {
 
 function elementSymbol(element: OracleCard["element"]): string {
   const art = ELEMENT_ART_URL[element];
-  if (art) {
-    return `<img class="element-symbol element-symbol--art" src="${art}" alt="" aria-hidden="true" />`;
-  }
-
-  const symbols: Partial<Record<OracleCard["element"], string>> = {
-    AETHER: '<path d="m24 4 4.5 15.5L44 24l-15.5 4.5L24 44l-4.5-15.5L4 24l15.5-4.5Z" />',
-  };
-
-  return `
-    <svg class="element-symbol" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-      ${symbols[element]}
-    </svg>`;
+  return `<img class="element-symbol element-symbol--art" src="${art}" alt="" aria-hidden="true" />`;
 }
 
 function streakMarks(streak: number): string {
