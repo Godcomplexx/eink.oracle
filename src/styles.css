@@ -1110,7 +1110,7 @@ a:focus-visible {
   letter-spacing: 0.08em;
 }
 
-.test-auth__code {
+.browser-auth__code {
   display: block;
   width: fit-content;
   margin-top: 36px;
@@ -1123,11 +1123,11 @@ a:focus-visible {
   line-height: 1;
 }
 
-.test-auth__form {
+.browser-auth__form {
   margin-top: 24px;
 }
 
-.test-auth__form input {
+.browser-auth__form input {
   font-size: 18px;
   letter-spacing: 0.22em;
 }

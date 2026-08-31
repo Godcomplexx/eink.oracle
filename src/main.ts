@@ -95,17 +95,18 @@ function bindThemeControl(): void {
 
 applyColorTheme(colorTheme);
 
-const TEST_MODE = import.meta.env.DEV && import.meta.env.VITE_TEST_MODE === "true";
-const TEST_DATE_STORAGE_KEY = "your-own-houdini:test-date";
-const TEST_ACCOUNT_STORAGE_KEY = "your-own-houdini:test-account";
-const TEST_CHALLENGE_STORAGE_KEY = "your-own-houdini:test-challenge";
+const ADVANCE_DAY_ON_REFRESH = import.meta.env.DEV && import.meta.env.VITE_TEST_MODE === "true";
+const BROWSER_CODE_AUTH = !accountServiceConfigured;
+const PREVIEW_DATE_STORAGE_KEY = "your-own-houdini:preview-date";
+const BROWSER_ACCOUNT_STORAGE_KEY = "your-own-houdini:browser-account";
+const BROWSER_CHALLENGE_STORAGE_KEY = "your-own-houdini:browser-challenge";
 
-interface TestAccountRecord {
+interface BrowserAccountRecord {
   id: string;
   email: string;
 }
 
-interface TestChallenge {
+interface BrowserChallenge {
   email: string;
   code: string;
 }
@@ -118,28 +119,28 @@ function nextDateKey(dateKey: string): string {
     .join("-");
 }
 
-function initializeTestDate(lastDrawDate: string | null): string | null {
-  if (!TEST_MODE) return null;
+function initializePreviewDate(lastDrawDate: string | null): string | null {
+  if (!ADVANCE_DAY_ON_REFRESH) return null;
   try {
-    const storedDate = localStorage.getItem(TEST_DATE_STORAGE_KEY);
+    const storedDate = localStorage.getItem(PREVIEW_DATE_STORAGE_KEY);
     const latestKnownDate = [storedDate, lastDrawDate]
       .filter((value): value is string => Boolean(value))
       .sort()
       .at(-1);
     const date = latestKnownDate ? nextDateKey(latestKnownDate) : localDateKey();
-    localStorage.setItem(TEST_DATE_STORAGE_KEY, date);
+    localStorage.setItem(PREVIEW_DATE_STORAGE_KEY, date);
     return date;
   } catch {
     return lastDrawDate ? nextDateKey(lastDrawDate) : localDateKey();
   }
 }
 
-function loadTestAccount(): User | null {
-  if (!TEST_MODE) return null;
+function loadBrowserAccount(): User | null {
+  if (!BROWSER_CODE_AUTH) return null;
   try {
-    const raw = localStorage.getItem(TEST_ACCOUNT_STORAGE_KEY);
+    const raw = localStorage.getItem(BROWSER_ACCOUNT_STORAGE_KEY);
     if (!raw) return null;
-    const record = JSON.parse(raw) as Partial<TestAccountRecord>;
+    const record = JSON.parse(raw) as Partial<BrowserAccountRecord>;
     if (typeof record.id !== "string" || typeof record.email !== "string") return null;
     return { id: record.id, email: record.email } as User;
   } catch {
@@ -147,45 +148,45 @@ function loadTestAccount(): User | null {
   }
 }
 
-function readTestChallenge(): TestChallenge | null {
-  if (!TEST_MODE) return null;
+function readBrowserChallenge(): BrowserChallenge | null {
+  if (!BROWSER_CODE_AUTH) return null;
   try {
-    const raw = localStorage.getItem(TEST_CHALLENGE_STORAGE_KEY);
+    const raw = localStorage.getItem(BROWSER_CHALLENGE_STORAGE_KEY);
     if (!raw) return null;
-    const challenge = JSON.parse(raw) as Partial<TestChallenge>;
+    const challenge = JSON.parse(raw) as Partial<BrowserChallenge>;
     return typeof challenge.email === "string" && /^\d{6}$/.test(challenge.code ?? "")
-      ? challenge as TestChallenge
+      ? challenge as BrowserChallenge
       : null;
   } catch {
     return null;
   }
 }
 
-function createTestChallenge(email: string): TestChallenge {
+function createBrowserChallenge(email: string): BrowserChallenge {
   const random = new Uint32Array(1);
   crypto.getRandomValues(random);
   const challenge = {
     email,
     code: String(random[0]! % 1_000_000).padStart(6, "0"),
   };
-  localStorage.setItem(TEST_CHALLENGE_STORAGE_KEY, JSON.stringify(challenge));
+  localStorage.setItem(BROWSER_CHALLENGE_STORAGE_KEY, JSON.stringify(challenge));
   return challenge;
 }
 
 let state = loadState();
-const testDate = initializeTestDate(state.lastDate);
+const previewDate = initializePreviewDate(state.lastDate);
 let activeHolo: HoloCard | null = null;
 let activeScreenCleanup: (() => void) | null = null;
 let journeyViewportPosition = { left: 0, top: 0 };
-let accountUser: User | null = loadTestAccount();
-let accountReady = TEST_MODE || !accountServiceConfigured;
+let accountUser: User | null = loadBrowserAccount();
+let accountReady = BROWSER_CODE_AUTH;
 let accountArchiveConnected = Boolean(accountUser);
 let accountFeedback = "";
 let accountInitialization: Promise<void> = Promise.resolve();
 const CARD_ASPECT_RATIO = 952 / 1652;
 
 function currentDateKey(): string {
-  return testDate ?? localDateKey();
+  return previewDate ?? localDateKey();
 }
 
 const EFFECT_BY_RARITY: Record<Rarity, HoloEffect> = {
@@ -452,17 +453,12 @@ function bindPasswordlessForm(prefix: string, idleButtonLabel: string): void {
       return;
     }
 
-    if (TEST_MODE) {
-      const challenge = createTestChallenge(input.value.trim());
+    if (BROWSER_CODE_AUTH) {
+      const challenge = createBrowserChallenge(input.value.trim());
       accountFeedback = `Access code created for ${challenge.email}.`;
       form.reset();
       if (window.location.hash === "#account") renderAccount();
       else window.location.hash = "account";
-      return;
-    }
-
-    if (!accountServiceConfigured) {
-      feedback.textContent = "Account storage is not connected yet. Add the Supabase build variables to enable email links.";
       return;
     }
 
@@ -1020,8 +1016,10 @@ function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
   const archiveNote = state.history.length > 0
     ? "Your first card is already safe in this browser. Signing in attaches it to your private archive and never grants another daily draw."
     : "Draw your first card without an account. Signing in later attaches that observation and never grants another daily draw.";
-  const gateIntro = "Enter your email to open your private deck, observation history and living graph. Your daily card remains available without an account.";
-  const gateButton = TEST_MODE ? "CONTINUE" : "EMAIL THE PRIVATE LINK";
+  const gateIntro = BROWSER_CODE_AUTH
+    ? "Enter your email to receive a six-digit access code on this page and open your private deck, observation history and living graph."
+    : "Enter your email to open your private deck, observation history and living graph. Your daily card remains available without an account.";
+  const gateButton = BROWSER_CODE_AUTH ? "CONTINUE" : "EMAIL THE PRIVATE LINK";
 
   shell(
     `
@@ -1038,33 +1036,33 @@ function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
   bindPasswordlessForm("archive-gate", gateButton);
 }
 
-function renderTestVerification(challenge: TestChallenge): void {
+function renderBrowserVerification(challenge: BrowserChallenge): void {
   const visibleCode = `${challenge.code.slice(0, 3)} ${challenge.code.slice(3)}`;
   shell(
     `
-      <section class="account-copy test-auth">
+      <section class="account-copy browser-auth">
         <p class="eyebrow"><span>ACCOUNT</span><span>ACCESS CODE</span></p>
         <h1>VERIFY<br />THE ARCHIVE</h1>
         <p class="account-intro">Use the six-digit private code below to continue as ${escapeXml(challenge.email)}.</p>
-        <output class="test-auth__code" aria-label="Verification code">${visibleCode}</output>
-        <form class="account-form test-auth__form" id="test-code-form">
-          <label for="test-code">SIX-DIGIT CODE</label>
+        <output class="browser-auth__code" aria-label="Verification code">${visibleCode}</output>
+        <form class="account-form browser-auth__form" id="browser-code-form">
+          <label for="browser-code">SIX-DIGIT CODE</label>
           <div class="account-form__row">
-            <input id="test-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" />
+            <input id="browser-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" />
             <button type="submit">OPEN MY ARCHIVE</button>
           </div>
         </form>
-        <p class="account-feedback" id="test-code-feedback" role="status"></p>
+        <p class="account-feedback" id="browser-code-feedback" role="status"></p>
         <p class="account-privacy">The code opens your existing archive and never grants another daily card.</p>
       </section>`,
-    "account-screen test-account-screen",
+    "account-screen browser-auth-screen",
   );
 
-  document.querySelector<HTMLFormElement>("#test-code-form")?.addEventListener("submit", (event) => {
+  document.querySelector<HTMLFormElement>("#browser-code-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const input = form.elements.namedItem("code") as HTMLInputElement;
-    const feedback = document.querySelector<HTMLElement>("#test-code-feedback");
+    const feedback = document.querySelector<HTMLElement>("#browser-code-feedback");
     const code = input.value.replace(/\s/g, "");
     if (!input.validity.valid) {
       input.reportValidity();
@@ -1076,9 +1074,9 @@ function renderTestVerification(challenge: TestChallenge): void {
       return;
     }
 
-    const record: TestAccountRecord = { id: crypto.randomUUID(), email: challenge.email };
-    localStorage.setItem(TEST_ACCOUNT_STORAGE_KEY, JSON.stringify(record));
-    localStorage.removeItem(TEST_CHALLENGE_STORAGE_KEY);
+    const record: BrowserAccountRecord = { id: crypto.randomUUID(), email: challenge.email };
+    localStorage.setItem(BROWSER_ACCOUNT_STORAGE_KEY, JSON.stringify(record));
+    localStorage.removeItem(BROWSER_CHALLENGE_STORAGE_KEY);
     accountUser = { id: record.id, email: record.email } as User;
     accountArchiveConnected = true;
     accountFeedback = "Archive unlocked. Your existing cards and journey are attached.";
@@ -1087,24 +1085,6 @@ function renderTestVerification(challenge: TestChallenge): void {
 }
 
 function renderAccount(): void {
-  if (!accountServiceConfigured && !TEST_MODE) {
-    shell(
-      `
-        <section class="account-copy">
-          <p class="eyebrow"><span>ACCOUNT</span><span>NOT CONNECTED</span></p>
-          <h1>SAVE YOUR<br />ARCHIVE</h1>
-          <p class="account-intro">Account storage is ready in the project, but this deployment still needs its public Supabase URL and anonymous key.</p>
-          <div class="account-notice">
-            <span>REQUIRED BUILD VARIABLES</span>
-            <code>VITE_SUPABASE_URL</code>
-            <code>VITE_SUPABASE_ANON_KEY</code>
-          </div>
-        </section>`,
-      "account-screen",
-    );
-    return;
-  }
-
   if (!accountReady) {
     shell(
       `
@@ -1122,14 +1102,14 @@ function renderAccount(): void {
     shell(
       `
         <section class="account-copy account-copy--connected">
-          <p class="eyebrow"><span>ACCOUNT</span><span>${TEST_MODE ? "ARCHIVE SAVED" : accountArchiveConnected ? "ARCHIVE SYNCED" : "SYNC PENDING"}</span></p>
+          <p class="eyebrow"><span>ACCOUNT</span><span>${BROWSER_CODE_AUTH ? "ARCHIVE SAVED" : accountArchiveConnected ? "ARCHIVE SYNCED" : "SYNC PENDING"}</span></p>
           <h1>YOUR PATH<br />IS SAVED</h1>
-          <p class="account-intro">${TEST_MODE ? "Your cards and journey are attached to this private archive. This account stores no public profile." : "Your cards and journey can now follow you to another device. This account stores no public profile."}</p>
+          <p class="account-intro">${BROWSER_CODE_AUTH ? "Your cards and journey are attached to this browser archive. This account stores no public profile." : "Your cards and journey can now follow you to another device. This account stores no public profile."}</p>
           <dl class="account-details">
             <div><dt>SIGN-IN EMAIL</dt><dd>${email}</dd></div>
             <div><dt>OBSERVATIONS</dt><dd>${state.history.length}</dd></div>
             <div><dt>UNIQUE CARDS</dt><dd>${Object.keys(state.cardsSeen).length}</dd></div>
-            <div><dt>STORAGE</dt><dd>PRIVATE</dd></div>
+            <div><dt>STORAGE</dt><dd>${BROWSER_CODE_AUTH ? "THIS BROWSER" : "PRIVATE"}</dd></div>
           </dl>
           ${accountFeedback ? `<p class="account-feedback" role="status">${escapeXml(accountFeedback)}</p>` : ""}
           <button class="account-secondary-button" id="account-sign-out" type="button">SIGN OUT ON THIS DEVICE</button>
@@ -1142,15 +1122,15 @@ function renderAccount(): void {
       button.disabled = true;
       button.textContent = "SIGNING OUT";
       try {
-        if (TEST_MODE) {
-          localStorage.removeItem(TEST_ACCOUNT_STORAGE_KEY);
-          localStorage.removeItem(TEST_CHALLENGE_STORAGE_KEY);
+        if (BROWSER_CODE_AUTH) {
+          localStorage.removeItem(BROWSER_ACCOUNT_STORAGE_KEY);
+          localStorage.removeItem(BROWSER_CHALLENGE_STORAGE_KEY);
         } else {
           await signOutAccount();
         }
         accountUser = null;
         accountArchiveConnected = false;
-        accountFeedback = TEST_MODE
+        accountFeedback = BROWSER_CODE_AUTH
           ? "Account closed. The browser archive remains available."
           : "Cloud archive disconnected. The current browser copy remains available.";
         renderAccount();
@@ -1163,23 +1143,23 @@ function renderAccount(): void {
     return;
   }
 
-  if (TEST_MODE) {
-    const challenge = readTestChallenge();
+  if (BROWSER_CODE_AUTH) {
+    const challenge = readBrowserChallenge();
     if (challenge) {
-      renderTestVerification(challenge);
+      renderBrowserVerification(challenge);
       return;
     }
 
     shell(
       `
-        <section class="account-copy test-auth">
+        <section class="account-copy browser-auth">
           <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORDLESS</span></p>
           <h1>SAVE YOUR<br />ARCHIVE</h1>
-          <p class="account-intro">Enter your email address to create a private six-digit access code.</p>
+          <p class="account-intro">Enter your email address. A private six-digit access code will appear on this page.</p>
           ${passwordlessFormMarkup("account", "CONTINUE", accountFeedback)}
           <p class="account-privacy">After verification, MY DECK and MY JOURNEY will open. An account never grants another daily card.</p>
         </section>`,
-      "account-screen test-account-screen",
+      "account-screen browser-auth-screen",
     );
     bindPasswordlessForm("account", "CONTINUE");
     return;
@@ -1249,8 +1229,7 @@ renderRoute();
 window.addEventListener("hashchange", renderRoute);
 
 async function startAccountIntegration(): Promise<void> {
-  if (TEST_MODE) return;
-  if (!accountServiceConfigured) return;
+  if (BROWSER_CODE_AUTH) return;
   try {
     accountUser = await initializeAccountSession();
     if (accountUser) {
