@@ -7,6 +7,7 @@ import {
 import "@kongyo2/cards-css/styles.css";
 import "./styles.css";
 
+import { CARDS } from "./cards";
 import { drawDailyCard, localDateKey } from "./oracle";
 import { loadState, saveState } from "./storage";
 import type { DrawRecord, OracleCard, OracleState, Rarity } from "./types";
@@ -81,7 +82,7 @@ applyColorTheme(colorTheme);
 
 let state = loadState();
 let activeHolo: HoloCard | null = null;
-const DEFAULT_CARD_ASPECT_RATIO = 952 / 1652;
+const CARD_ASPECT_RATIO = 952 / 1652;
 
 const EFFECT_BY_RARITY: Record<Rarity, HoloEffect> = {
   COMMON: "none",
@@ -209,17 +210,15 @@ function renderLanding(): void {
   document.querySelector<HTMLButtonElement>("#reveal-card")?.addEventListener("click", handleReveal);
 }
 
-function preloadImage(src: string | undefined): Promise<number | null> {
+function preloadImage(src: string | undefined): Promise<void> {
   return new Promise((resolve) => {
     if (!src) {
-      resolve(null);
+      resolve();
       return;
     }
     const image = new Image();
-    image.onload = () => resolve(image.naturalWidth > 0 && image.naturalHeight > 0
-      ? image.naturalWidth / image.naturalHeight
-      : null);
-    image.onerror = () => resolve(null);
+    image.onload = () => resolve();
+    image.onerror = () => resolve();
     image.src = src;
   });
 }
@@ -237,17 +236,16 @@ async function handleReveal(event: MouseEvent): Promise<void> {
     state = result.state;
 
     const artReady = preloadImage(result.card.art);
-    let cardAspectRatio: number | null;
     if (!isReducedMotion()) {
-      [, cardAspectRatio] = await Promise.all([
+      await Promise.all([
         new Promise((resolve) => window.setTimeout(resolve, 850)),
         artReady,
       ]);
     } else {
-      cardAspectRatio = await artReady;
+      await artReady;
     }
 
-    renderCard(result.card, result.record, false, cardAspectRatio ?? DEFAULT_CARD_ASPECT_RATIO);
+    renderCard(result.card, result.record);
   } catch (error) {
     console.error(error);
     renderLocked();
@@ -274,8 +272,32 @@ function makeCardOverlay(card: OracleCard, record: DrawRecord): HTMLElement {
   return overlay;
 }
 
-function renderCard(card: OracleCard, record: DrawRecord, restored: boolean, cardAspectRatio: number): void {
+function elementSymbol(element: OracleCard["element"]): string {
+  const symbols: Record<OracleCard["element"], string> = {
+    FIRE: '<path d="M24 6 42 40H6Z" />',
+    AIR: '<path d="M24 6 42 40H6Z" /><path d="M11 29h26" />',
+    WATER: '<path d="M6 8h36L24 42Z" />',
+    EARTH: '<path d="M6 8h36L24 42Z" /><path d="M11 21h26" />',
+    AETHER: '<path d="m24 4 4.5 15.5L44 24l-15.5 4.5L24 44l-4.5-15.5L4 24l15.5-4.5Z" />',
+  };
+
+  return `
+    <svg class="element-symbol" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      ${symbols[element]}
+    </svg>`;
+}
+
+function streakMarks(streak: number): string {
+  const activeMarks = Math.min(Math.max(streak, 0), 7);
+  return Array.from({ length: 7 }, (_, index) => (
+    `<i class="${index < activeMarks ? "is-active" : ""}"></i>`
+  )).join("");
+}
+
+function renderCard(card: OracleCard, record: DrawRecord): void {
   const seen = state.cardsSeen[card.id];
+  const observations = seen?.timesSeen ?? 1;
+  const observationNote = observations === 1 ? "FIRST SIGHTING" : `${observations} SIGHTINGS`;
   shell(
     `
       <section class="reveal-copy">
@@ -284,15 +306,26 @@ function renderCard(card: OracleCard, record: DrawRecord, restored: boolean, car
         <h1>${card.title}</h1>
         <blockquote>${card.message}</blockquote>
         <div class="reading-meta">
-          <div><span>ELEMENT</span><strong>${card.element}</strong></div>
-          <div><span>OBSERVED</span><strong>${seen?.timesSeen ?? 1}×</strong></div>
-          <div><span>STREAK</span><strong>${state.streak} DAY${state.streak === 1 ? "" : "S"}</strong></div>
+          <div>
+            <span class="reading-meta__label">ELEMENT</span>
+            <span class="reading-meta__value reading-meta__value--element">${elementSymbol(card.element)}<strong>${card.element}</strong></span>
+            <span class="reading-meta__note">CURRENT ELEMENT</span>
+          </div>
+          <div>
+            <span class="reading-meta__label">OBSERVED</span>
+            <strong class="reading-meta__value">${String(observations).padStart(2, "0")}</strong>
+            <span class="reading-meta__note">${observationNote}</span>
+          </div>
+          <div>
+            <span class="reading-meta__label">STREAK</span>
+            <strong class="reading-meta__value">DAY ${String(state.streak).padStart(2, "0")}</strong>
+            <span class="streak-track" aria-label="${state.streak} day streak">${streakMarks(state.streak)}</span>
+          </div>
         </div>
         <p class="reaction-line">The card means nothing until you see yourself in it.</p>
-        ${restored ? '<p class="restored-note">SAVED RESULT / THIS CARD WILL NOT CHANGE TODAY</p>' : ""}
       </section>
       <section class="card-stage" aria-label="Your revealed card">
-        <div class="card-mount" id="card-mount" style="--oracle-card-aspect: ${cardAspectRatio}">
+        <div class="card-mount" id="card-mount">
           <div
             class="card-flip"
             id="card-flip"
@@ -311,7 +344,7 @@ function renderCard(card: OracleCard, record: DrawRecord, restored: boolean, car
   if (!screen || !flip) return;
 
   const reducedMotion = isReducedMotion();
-  mountHoloCard(flip, card, record, reducedMotion, cardAspectRatio);
+  mountHoloCard(flip, card, record, reducedMotion);
   let revealed = false;
 
   const reveal = (): void => {
@@ -339,7 +372,6 @@ function mountHoloCard(
   card: OracleCard,
   record: DrawRecord,
   reducedMotion: boolean,
-  cardAspectRatio: number,
 ): void {
   activeHolo = createHoloCard({
     image: card.art ?? placeholderArt(card),
@@ -350,7 +382,7 @@ function mountHoloCard(
     className: "oracle-holo-card",
     effect: EFFECT_BY_RARITY[card.rarity],
     palette: PALETTE_BY_RARITY[card.rarity],
-    aspectRatio: cardAspectRatio,
+    aspectRatio: CARD_ASPECT_RATIO,
     textureSeed: seedFromId(card.id),
     interactive: !reducedMotion,
     gyroscope: false,
@@ -368,18 +400,37 @@ function mountHoloCard(
   flip.append(activeHolo.element);
 }
 
+async function viewTodayCard(button: HTMLButtonElement, card: OracleCard, record: DrawRecord): Promise<void> {
+  button.disabled = true;
+  button.textContent = "OPENING SAVED CARD";
+
+  await preloadImage(card.art);
+  renderCard(card, record);
+}
+
 function renderLocked(): void {
   const day = Math.max(1, state.history.length);
+  const record = state.history.at(-1);
+  const card = record?.date === localDateKey()
+    ? CARDS.find((candidate) => candidate.id === record.cardId)
+    : undefined;
 
   shell(
     `
       <section class="locked-copy">
         <p class="eyebrow"><span>DAY ${dayLabel(day)}</span><span>ARCHIVE SEALED</span></p>
         <h1>YOU'VE ALREADY<br />SEEN YOUR FATE<br />TODAY.</h1>
+        ${card ? '<button class="view-card-button" id="view-today-card" type="button">VIEW TODAY\'S CARD</button>' : ""}
         <p>COME BACK TOMORROW.</p>
       </section>`,
     "locked-screen",
   );
+
+  if (card && record) {
+    document.querySelector<HTMLButtonElement>("#view-today-card")?.addEventListener("click", (event) => {
+      void viewTodayCard(event.currentTarget as HTMLButtonElement, card, record);
+    }, { once: true });
+  }
 }
 
 if (state.lastDate === localDateKey()) {
