@@ -1,0 +1,25 @@
+{
+  "id": "the-second-self",
+  "title": "THE SECOND SELF",
+  "message": "You recognized them before you understood why.",
+  "meaning": "The Second Self is recognition without identity.\n\nThere is nobody standing before the mirror, yet someone exists inside the reflection. The figure is not presented as another person, a ghost or a future version of you.\n\nThe card deliberately refuses to explain the resemblance.\n\nWhat matters is whether you felt one.",
+  "rarity": "RARE",
+  "theme": "SELF",
+  "state": "REFLECTION",
+  "tags": ["SELF", "RECOGNITION", "IDENTITY"],
+  "loreId": "second-self",
+  "nextNodes": ["DISCOVERY", "REFLECTION", "CHANGE"],
+  "unlockConditions": [
+    { "type": "seen-count", "cardId": "the-mirror", "minimum": 3 },
+    { "type": "seen-card", "cardId": "the-mask" }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "SECOND_SELF" },
+  "cooldown": 70,
+  "element": "WATER",
+  "symbol": "◐",
+  "imageKey": "the-second-self",
+  "imageAlt": "An empty standing mirror reflecting a human figure that is absent from the room",
+  "mechanic": "Progression RARE. It becomes eligible only after THE MIRROR has been observed three times and THE MASK has appeared, then opens the SECOND_SELF branch.",
+  "visibility": "PUBLIC",
+  "status": "live"
+}

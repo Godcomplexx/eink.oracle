@@ -1,0 +1,26 @@
+{
+  "id": "the-cabinet",
+  "title": "THE CABINET",
+  "message": "The trick ends when the impossible becomes empty.",
+  "meaning": "The Cabinet is shown after the escape.\n\nThe doors are open. The restraints remain inside. No performer is present, and the card gives no explanation for how anyone left.\n\nIt is not interested in the moment of magic — only in what remains after the audience realizes the impossible has already happened.",
+  "rarity": "HOUDINI",
+  "theme": "ESCAPE",
+  "state": "RELEASE",
+  "tags": ["HOUDINI", "ESCAPE", "ABSENCE"],
+  "loreId": "houdini-escape-cabinet",
+  "nextNodes": ["RELEASE", "RENEWAL", "OPENING"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-lock" },
+    { "type": "seen-card", "cardId": "the-labyrinth" },
+    { "type": "journey-days", "minimum": 14 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "ESCAPE_ARCHIVE" },
+  "cooldown": 120,
+  "element": "AETHER",
+  "symbol": "▥",
+  "imageKey": "the-cabinet",
+  "imageAlt": "An open wooden escape cabinet with abandoned restraints and no performer inside",
+  "mechanic": "Hidden Houdini escape card. It requires THE LOCK, a path through THE LABYRINTH and a mature journey, then opens the ESCAPE_ARCHIVE branch.",
+  "visibility": "HIDDEN_UNTIL_DISCOVERED",
+  "status": "live"
+}

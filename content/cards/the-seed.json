@@ -6,6 +6,8 @@
   "rarity": "COMMON",
   "theme": "CHANGE",
   "state": "OPENING",
+  "entryEligible": true,
+  "selectionWeight": 1,
   "tags": ["CHANGE", "BEGINNING", "GROWTH"],
   "loreId": null,
   "nextNodes": ["DISCOVERY", "CHANGE", "RENEWAL"],

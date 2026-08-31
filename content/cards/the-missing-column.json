@@ -1,0 +1,25 @@
+{
+  "id": "the-missing-column",
+  "title": "THE MISSING COLUMN",
+  "message": "Something essential is missing. Everything is still standing.",
+  "meaning": "The Missing Column is an absence the world has somehow learned to accommodate.\n\nThe support is gone without collapse, debris or explanation. Architecture continues across the empty space as though the missing piece still exists.\n\nThe contradiction is not hidden. It is simply being ignored.",
+  "rarity": "ANOMALY",
+  "theme": "STRUCTURE",
+  "state": "CHANGE",
+  "tags": ["ABSENCE", "STRUCTURE", "CONTRADICTION"],
+  "loreId": "missing-support",
+  "nextNodes": ["ACTION", "RELEASE", "RENEWAL"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-remainder" },
+    { "type": "journey-days", "minimum": 12 }
+  ],
+  "graphEffect": { "type": "grant-bypass", "draws": 1 },
+  "cooldown": 90,
+  "element": "EARTH",
+  "symbol": "∥",
+  "imageKey": "the-missing-column",
+  "imageAlt": "A cathedral remains standing across a tall empty space where a structural column should be",
+  "mechanic": "Strong structural ANOMALY. It grants one stored bypass that can satisfy a single missing prerequisite on a later card branch.",
+  "visibility": "PUBLIC",
+  "status": "live"
+}

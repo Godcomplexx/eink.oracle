@@ -7,12 +7,20 @@ const projectRoot = fileURLToPath(new URL("../", import.meta.url));
 const cardsDirectory = path.join(projectRoot, "content", "cards");
 const assetsDirectory = path.join(projectRoot, "src", "assets", "cards");
 const cardTypesFile = path.join(projectRoot, "content", "card-types.json");
+const oracleConfigFile = path.join(projectRoot, "content", "oracle-config.json");
 
 const rarities = new Set(["COMMON", "RARE", "ARCANE", "ANOMALY", "HOUDINI"]);
 const states = new Set(["OPENING", "DISCOVERY", "REFLECTION", "ACTION", "CHANGE", "RELEASE", "RENEWAL"]);
 const elements = new Set(["AIR", "WATER", "FIRE", "EARTH", "AETHER"]);
-const conditionTypes = new Set(["journey-days", "seen-card", "unlocked-node"]);
-const effectTypes = new Set(["none", "unlock-node", "return-to-previous"]);
+const conditionTypes = new Set(["journey-days", "seen-card", "seen-count", "seen-sequence", "unlocked-node"]);
+const effectTypes = new Set([
+  "none",
+  "unlock-node",
+  "return-to-previous",
+  "branch-or-return",
+  "recall-old-state",
+  "grant-bypass",
+]);
 const imageExtensions = ["avif", "webp", "png", "jpg", "jpeg"];
 const visibilityModes = new Set(["PUBLIC", "HIDDEN_UNTIL_DISCOVERED"]);
 const cardStatuses = new Set(["draft", "live"]);
@@ -21,11 +29,18 @@ const errors = [];
 const cardFiles = (await readdir(cardsDirectory)).filter((file) => file.endsWith(".json")).sort();
 const cards = [];
 let cardTypes;
+let oracleConfig;
 
 try {
   cardTypes = JSON.parse(await readFile(cardTypesFile, "utf8"));
 } catch (error) {
   errors.push(`card-types.json: invalid JSON (${error.message}).`);
+}
+
+try {
+  oracleConfig = JSON.parse(await readFile(oracleConfigFile, "utf8"));
+} catch (error) {
+  errors.push(`oracle-config.json: invalid JSON (${error.message}).`);
 }
 
 function requireString(card, field, file) {
@@ -68,6 +83,12 @@ for (const file of cardFiles) {
   if (card.loreId !== null && typeof card.loreId !== "string") errors.push(`${file}: loreId must be a string or null.`);
   if (card.imageKey !== null && typeof card.imageKey !== "string") errors.push(`${file}: imageKey must be a string or null.`);
   if (card.showcase !== undefined && typeof card.showcase !== "boolean") errors.push(`${file}: showcase must be a boolean.`);
+  if (card.entryEligible !== undefined && typeof card.entryEligible !== "boolean") {
+    errors.push(`${file}: entryEligible must be a boolean.`);
+  }
+  if (card.selectionWeight !== undefined && (!Number.isFinite(card.selectionWeight) || card.selectionWeight <= 0)) {
+    errors.push(`${file}: selectionWeight must be a positive number.`);
+  }
   if (card.visibility !== undefined && !visibilityModes.has(card.visibility)) {
     errors.push(`${file}: visibility must be PUBLIC or HIDDEN_UNTIL_DISCOVERED.`);
   }
@@ -79,12 +100,42 @@ for (const file of cardFiles) {
   if (card.status !== undefined && !cardStatuses.has(card.status)) {
     errors.push(`${file}: status must be "draft" or "live".`);
   }
+  if (card.entryEligible === true && card.status === "draft") {
+    errors.push(`${file}: a draft card cannot be entryEligible.`);
+  }
 
   for (const condition of card.unlockConditions ?? []) {
     if (!condition || !conditionTypes.has(condition.type)) {
       errors.push(`${file}: contains an unsupported unlock condition.`);
     }
+    if (condition?.type === "seen-sequence" && (
+      !Array.isArray(condition.cardIds)
+      || condition.cardIds.length < 2
+      || condition.cardIds.some((id) => typeof id !== "string")
+    )) {
+      errors.push(`${file}: seen-sequence requires at least two cardIds.`);
+    }
+    if (condition?.type === "seen-count" && (
+      typeof condition.cardId !== "string"
+      || !Number.isInteger(condition.minimum)
+      || condition.minimum < 1
+    )) {
+      errors.push(`${file}: seen-count requires a cardId and a positive minimum.`);
+    }
   }
+
+  if (card.graphEffect?.type === "branch-or-return" && (
+    typeof card.graphEffect.node !== "string"
+    || !Number.isFinite(card.graphEffect.returnChance)
+    || card.graphEffect.returnChance < 0
+    || card.graphEffect.returnChance > 1
+  )) errors.push(`${file}: branch-or-return requires a node and returnChance between 0 and 1.`);
+  if (card.graphEffect?.type === "recall-old-state" && (
+    !Number.isInteger(card.graphEffect.minimumAge) || card.graphEffect.minimumAge < 1
+  )) errors.push(`${file}: recall-old-state requires a positive minimumAge.`);
+  if (card.graphEffect?.type === "grant-bypass" && (
+    !Number.isInteger(card.graphEffect.draws) || card.graphEffect.draws < 1
+  )) errors.push(`${file}: grant-bypass requires a positive draws value.`);
 
   if (typeof card.imageKey === "string") {
     let imageFound = false;
@@ -98,6 +149,43 @@ for (const file of cardFiles) {
       }
     }
     if (!imageFound) errors.push(`${file}: no Vite asset found for imageKey ${card.imageKey}.`);
+  }
+}
+
+if (!oracleConfig || !Number.isInteger(oracleConfig.deckVersion) || oracleConfig.deckVersion < 1) {
+  errors.push("oracle-config.json: deckVersion must be a positive integer.");
+} else {
+  if (!Number.isInteger(oracleConfig.algorithmVersion) || oracleConfig.algorithmVersion < 1) {
+    errors.push("oracle-config.json: algorithmVersion must be a positive integer.");
+  }
+  if (!states.has(oracleConfig.entryNode)) {
+    errors.push("oracle-config.json: entryNode must be a supported journey state.");
+  }
+  for (const rarity of rarities) {
+    if (!Number.isFinite(oracleConfig.rarityWeights?.[rarity]) || oracleConfig.rarityWeights[rarity] <= 0) {
+      errors.push(`oracle-config.json: rarityWeights.${rarity} must be a positive number.`);
+    }
+  }
+  if (!Array.isArray(oracleConfig.pity)) {
+    errors.push("oracle-config.json: pity must be an array.");
+  } else {
+    for (const [index, step] of oracleConfig.pity.entries()) {
+      if (!Number.isInteger(step?.afterDays) || step.afterDays < 1 || !Number.isFinite(step?.multiplier) || step.multiplier < 1) {
+        errors.push(`oracle-config.json: pity[${index}] is invalid.`);
+      }
+    }
+  }
+  for (const state of states) {
+    const transitions = oracleConfig.transitions?.[state];
+    if (!transitions || typeof transitions !== "object") {
+      errors.push(`oracle-config.json: transitions.${state} must be an object.`);
+      continue;
+    }
+    for (const [target, weight] of Object.entries(transitions)) {
+      if (!states.has(target) || !Number.isFinite(weight) || weight <= 0) {
+        errors.push(`oracle-config.json: invalid transition ${state} -> ${target}.`);
+      }
+    }
   }
 }
 
@@ -140,10 +228,21 @@ for (const { card, file } of cards) {
     if (condition.type === "seen-card" && !cardIds.has(condition.cardId)) {
       errors.push(`${file}: unlock condition references unknown card ${condition.cardId}.`);
     }
+    if (condition.type === "seen-count" && !cardIds.has(condition.cardId)) {
+      errors.push(`${file}: unlock condition references unknown card ${condition.cardId}.`);
+    }
+    if (condition.type === "seen-sequence") {
+      for (const cardId of condition.cardIds ?? []) {
+        if (!cardIds.has(cardId)) errors.push(`${file}: sequence references unknown card ${cardId}.`);
+      }
+    }
   }
 }
 
 if (cards.length === 0) errors.push("No card JSON files were found.");
+
+const liveEntryCards = cards.filter(({ card }) => card.status !== "draft" && card.entryEligible === true);
+if (liveEntryCards.length === 0) errors.push("At least one live card must be entryEligible.");
 
 if (errors.length > 0) {
   console.error(`Card content validation failed with ${errors.length} error(s):`);

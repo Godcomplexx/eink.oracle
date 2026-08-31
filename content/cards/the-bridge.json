@@ -1,0 +1,22 @@
+{
+  "id": "the-bridge",
+  "title": "THE BRIDGE",
+  "message": "You don't have to know what waits on the other side.",
+  "meaning": "The Bridge is commitment to a direction before certainty exists.\n\nThe crossing itself is visible and real. What awaits at the end is not. The card is less about destination than about accepting that some answers become available only after movement.",
+  "rarity": "COMMON",
+  "theme": "PATH",
+  "state": "ACTION",
+  "tags": ["PATH", "TRANSITION", "COMMITMENT"],
+  "loreId": null,
+  "nextNodes": ["CHANGE", "RENEWAL", "REFLECTION"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "unlock-node", "node": "CROSSING" },
+  "cooldown": 25,
+  "element": "WATER",
+  "symbol": "⌒",
+  "imageKey": "the-bridge",
+  "imageAlt": "A narrow stone bridge crossing a deep dark gorge toward an unseen destination",
+  "mechanic": "Core transition card. Its outgoing nodes deliberately cross semantic families, so the next observation can leave the current theme and begin a different branch.",
+  "visibility": "PUBLIC",
+  "status": "live"
+}

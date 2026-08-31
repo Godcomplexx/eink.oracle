@@ -1,0 +1,26 @@
+{
+  "deckVersion": 3,
+  "algorithmVersion": 4,
+  "entryNode": "OPENING",
+  "rarityWeights": {
+    "COMMON": 0.97,
+    "RARE": 0.021,
+    "ARCANE": 0.006,
+    "ANOMALY": 0.002,
+    "HOUDINI": 0.001
+  },
+  "pity": [
+    { "afterDays": 10, "multiplier": 1.35 },
+    { "afterDays": 15, "multiplier": 2 },
+    { "afterDays": 20, "multiplier": 3.35 }
+  ],
+  "transitions": {
+    "OPENING": { "OPENING": 0.25, "DISCOVERY": 0.45, "REFLECTION": 0.3 },
+    "DISCOVERY": { "REFLECTION": 0.3, "ACTION": 0.35, "CHANGE": 0.2, "DISCOVERY": 0.15 },
+    "REFLECTION": { "DISCOVERY": 0.2, "ACTION": 0.25, "RELEASE": 0.35, "REFLECTION": 0.2 },
+    "ACTION": { "CHANGE": 0.45, "DISCOVERY": 0.2, "RELEASE": 0.2, "ACTION": 0.15 },
+    "CHANGE": { "RELEASE": 0.35, "RENEWAL": 0.35, "REFLECTION": 0.2, "CHANGE": 0.1 },
+    "RELEASE": { "RENEWAL": 0.5, "OPENING": 0.25, "REFLECTION": 0.25 },
+    "RENEWAL": { "OPENING": 0.4, "DISCOVERY": 0.35, "ACTION": 0.25 }
+  }
+}

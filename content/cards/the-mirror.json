@@ -6,6 +6,8 @@
   "rarity": "COMMON",
   "theme": "SELF",
   "state": "REFLECTION",
+  "entryEligible": true,
+  "selectionWeight": 1,
   "tags": ["SELF", "REFLECTION", "TRUTH"],
   "loreId": null,
   "nextNodes": ["DISCOVERY", "RELEASE", "CHANGE"],

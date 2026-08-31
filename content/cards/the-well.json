@@ -6,6 +6,8 @@
   "rarity": "COMMON",
   "theme": "STILLNESS",
   "state": "OPENING",
+  "entryEligible": true,
+  "selectionWeight": 1,
   "tags": ["DEPTH", "UNKNOWN", "INTROSPECTION"],
   "loreId": null,
   "nextNodes": ["REFLECTION", "DISCOVERY"],

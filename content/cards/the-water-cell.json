@@ -1,0 +1,26 @@
+{
+  "id": "the-water-cell",
+  "title": "THE WATER CELL",
+  "message": "The evidence remains. The explanation doesn't.",
+  "meaning": "The Water Cell shows the silent aftermath of an impossible escape.\n\nThe chamber remains standing. The restraint has been opened. Nothing supernatural is visible, and nothing in the scene explains how the person who should have been trapped inside is gone.\n\nThe absence is the entire point.",
+  "rarity": "HOUDINI",
+  "theme": "ESCAPE",
+  "state": "RELEASE",
+  "tags": ["HOUDINI", "ESCAPE", "EVIDENCE"],
+  "loreId": "houdini-escape-water-cell",
+  "nextNodes": ["RENEWAL", "OPENING", "REFLECTION"],
+  "unlockConditions": [
+    { "type": "seen-sequence", "cardIds": ["the-lock", "the-cabinet"] },
+    { "type": "unlocked-node", "node": "ESCAPE_ARCHIVE" },
+    { "type": "journey-days", "minimum": 18 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "WATER_CELL_EVIDENCE" },
+  "cooldown": 180,
+  "element": "WATER",
+  "symbol": "♒",
+  "imageKey": "the-water-cell",
+  "imageAlt": "An open glass water escape cell with opened restraints left on the floor",
+  "mechanic": "Very rare hidden Houdini card. THE LOCK must have appeared before THE CABINET, and the ESCAPE_ARCHIVE branch must already be open.",
+  "visibility": "HIDDEN_UNTIL_DISCOVERED",
+  "status": "live"
+}

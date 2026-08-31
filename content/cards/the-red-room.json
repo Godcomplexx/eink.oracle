@@ -1,0 +1,25 @@
+{
+  "id": "the-red-room",
+  "title": "THE RED ROOM",
+  "message": "You were not supposed to know this room existed.",
+  "meaning": "The Red Room is something that existed before you discovered it.\n\nNothing inside is necessarily dangerous. The unsettling part is that the room was hidden deliberately — and that the rest of the world continued normally while it remained unseen.\n\nDiscovery does not explain intention.",
+  "rarity": "RARE",
+  "theme": "HIDDEN",
+  "state": "DISCOVERY",
+  "tags": ["HIDDEN", "DISCOVERY", "SECRECY"],
+  "loreId": "red-room",
+  "nextNodes": ["REFLECTION", "ACTION", "CHANGE"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-book" },
+    { "type": "seen-card", "cardId": "the-veil" }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "RED_ROOM" },
+  "cooldown": 60,
+  "element": "FIRE",
+  "symbol": "▥",
+  "imageKey": "the-red-room",
+  "imageAlt": "A concealed room visible through an open carved doorway in a dark corridor",
+  "mechanic": "Hidden progression RARE. It does not enter the eligible pool until both THE BOOK and THE VEIL have been observed, then permanently opens the RED_ROOM branch.",
+  "visibility": "HIDDEN_UNTIL_DISCOVERED",
+  "status": "live"
+}

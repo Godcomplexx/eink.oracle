@@ -1,0 +1,25 @@
+{
+  "id": "the-remainder",
+  "title": "THE REMAINDER",
+  "message": "What disappeared can still leave a structure behind.",
+  "meaning": "The Remainder is architecture surviving its own destruction. Parts of the scene remain coherent while others begin to dissolve into incomplete reconstruction.\n\nSomething is gone, but the world still behaves as though it remembers where it used to be.",
+  "rarity": "ANOMALY",
+  "theme": "MEMORY",
+  "state": "RELEASE",
+  "tags": ["MEMORY", "LOSS", "RESIDUE"],
+  "loreId": "remainder-memory",
+  "nextNodes": ["REFLECTION", "RENEWAL", "OPENING"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-empty-chair" },
+    { "type": "journey-days", "minimum": 8 }
+  ],
+  "graphEffect": { "type": "recall-old-state", "minimumAge": 4 },
+  "cooldown": 70,
+  "element": "EARTH",
+  "symbol": "⌇",
+  "imageKey": "the-remainder",
+  "imageAlt": "Ruined cathedral arches dissolving into an incomplete digital reconstruction",
+  "mechanic": "Memory ANOMALY. When enough history exists, its graph edge returns to a state from at least four observations ago rather than only remembering the previous card.",
+  "visibility": "PUBLIC",
+  "status": "live"
+}

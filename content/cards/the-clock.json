@@ -1,0 +1,22 @@
+{
+  "id": "the-clock",
+  "title": "THE CLOCK",
+  "message": "Not everything needs to happen on your schedule.",
+  "meaning": "The Clock is the difference between measuring time and controlling it.\n\nIts mechanism can count every second perfectly without having any authority over what those seconds bring. Waiting, delay and timing are not always signs that something has gone wrong.\n\nSometimes the clock is accurate and the expectation is not.",
+  "rarity": "COMMON",
+  "theme": "TIME",
+  "state": "REFLECTION",
+  "tags": ["TIME", "PATIENCE", "CONTROL"],
+  "loreId": null,
+  "nextNodes": ["RELEASE", "RENEWAL", "DISCOVERY"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "unlock-node", "node": "MEASURED_WAIT" },
+  "cooldown": 28,
+  "element": "AETHER",
+  "symbol": "◷",
+  "imageKey": "the-clock",
+  "imageAlt": "An old pendulum clock standing in a dark hall with a narrow shaft of light",
+  "mechanic": "Time card. Once observed, it leaves MEASURED_WAIT in the graph so later cards can require that the user encountered time before returning on another day.",
+  "visibility": "PUBLIC",
+  "status": "live"
+}

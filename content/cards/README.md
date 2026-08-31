@@ -39,6 +39,14 @@ The five card types and their official showcase cards are defined once in
 `content/card-types.json`. `HOUDINI` uses a hidden discovery count, so the UI must
 never expose a total such as `1 / 7`.
 
+Supported advanced conditions and graph effects include:
+
+- `seen-sequence` — requires the listed cards to have appeared in order, but not necessarily on consecutive days;
+- `seen-count` — requires one specific card to have been observed a minimum number of times;
+- `branch-or-return` — opens a branch and may redirect the route to a previously visited state;
+- `recall-old-state` — reconnects the graph to a state outside the recent history window;
+- `grant-bypass` — stores a one-use allowance for a card missing one prerequisite.
+
 Validate the catalogue:
 
 ```bash

@@ -10,8 +10,9 @@
   "loreId": "escape-set",
   "nextNodes": ["REFLECTION", "RELEASE"],
   "unlockConditions": [
-    { "type": "seen-card", "cardId": "the-door" },
-    { "type": "seen-card", "cardId": "the-key" }
+    { "type": "seen-card", "cardId": "the-threshold" },
+    { "type": "seen-card", "cardId": "the-window" },
+    { "type": "journey-days", "minimum": 7 }
   ],
   "graphEffect": { "type": "none" },
   "cooldown": 30,
@@ -19,7 +20,7 @@
   "symbol": "▣",
   "imageKey": "the-lock",
   "imageAlt": "Official card artwork for The Lock",
-  "mechanic": "Conditional RARE card. It becomes eligible only after both THE DOOR and THE KEY have been seen.",
+  "mechanic": "Conditional RARE card. It becomes eligible after THE THRESHOLD and THE WINDOW establish a path and visible destination in a sufficiently developed journey.",
   "showcase": true,
   "visibility": "PUBLIC"
 }

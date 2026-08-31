@@ -11,11 +11,11 @@ The first browser-only vertical slice is implemented with Vite and TypeScript. I
 - a responsive reveal experience;
 - one draw per local calendar day using `localStorage`;
 - a weighted journey graph, cooldowns, unlock conditions and hidden pity;
-- ten prototype card definitions;
-- a JSON card catalogue with build-time validation;
+- passwordless accounts that synchronize the existing local archive;
+- a versioned JSON catalogue with 35 card definitions and build-time validation;
 - five rarity materials powered by `cards-css`;
 - pointer interaction, optional device tilt and reduced-motion support;
-- the original `THE MIRROR` artwork, with code-generated placeholders for unfinished cards.
+- production artwork for 28 cards, with code-generated placeholders kept only for unfinished drafts.
 
 Run it locally:
 
@@ -31,6 +31,19 @@ npm run build
 ```
 
 The one-card-per-local-calendar-day limit is enforced in both local development and production builds.
+
+## Private account storage
+
+The first visit and daily card remain anonymous. After the first reveal, the visitor is invited to save the path through a passwordless email link. `MY DECK`, archived card records and `MY JOURNEY` are private account views; the current daily card can still be reopened without signing in. Email is kept in Supabase Auth, and the application does not request a name, username, phone number, birthday or public profile. The existing local collection is attached on the first sign-in, and an existing remote archive wins when the account is opened on another device.
+
+To enable accounts:
+
+1. Create a Supabase project and run [`supabase/schema.sql`](supabase/schema.sql) in its SQL editor.
+2. Set the production Site URL to `https://godcomplexx.github.io/eink.oracle/` and allow that exact redirect URL. Add `http://localhost:5173/eink.oracle/` and `http://127.0.0.1:5173/eink.oracle/` while developing locally.
+3. Copy [`.env.example`](.env.example) to `.env.local` and provide the project URL and public anonymous key.
+4. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as GitHub repository Actions secrets before deploying Pages.
+
+The public anonymous key is safe to expose in the built browser application; access to account rows is restricted by Postgres Row Level Security. Never use a Supabase service-role key in Vite or GitHub Pages.
 
 ## GitHub Pages
 

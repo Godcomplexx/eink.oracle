@@ -6,6 +6,8 @@
   "rarity": "COMMON",
   "theme": "KNOWLEDGE",
   "state": "DISCOVERY",
+  "entryEligible": true,
+  "selectionWeight": 1,
   "tags": ["KNOWLEDGE", "QUESTION", "DISCOVERY"],
   "loreId": null,
   "nextNodes": ["REFLECTION", "ACTION"],

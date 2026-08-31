@@ -1,0 +1,26 @@
+{
+  "id": "the-shadow",
+  "title": "THE SHADOW",
+  "message": "Not everything that points somewhere knows the way.",
+  "meaning": "The Shadow appears without a visible object capable of casting it. It has direction, shape and apparent intention — but no source.\n\nThe card asks whether something that feels like a sign actually deserves to be followed.",
+  "rarity": "ANOMALY",
+  "theme": "DIRECTION",
+  "state": "DISCOVERY",
+  "tags": ["DIRECTION", "PROJECTION", "DOUBT"],
+  "loreId": "shadow-route",
+  "nextNodes": ["ACTION", "CHANGE", "RELEASE", "OPENING"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-window" },
+    { "type": "unlocked-node", "node": "DISTANT_VIEW" },
+    { "type": "journey-days", "minimum": 9 }
+  ],
+  "graphEffect": { "type": "branch-or-return", "node": "SHADOW_ROUTE", "returnChance": 0.35 },
+  "cooldown": 72,
+  "element": "AIR",
+  "symbol": "➤",
+  "imageKey": "the-shadow",
+  "imageAlt": "A source-less black arrow-shaped shadow crossing the floor of a ruined cathedral",
+  "mechanic": "ANOMALY direction card. It unlocks SHADOW_ROUTE and may either continue into an unusual branch or return the journey to an earlier visited state.",
+  "visibility": "PUBLIC",
+  "status": "live"
+}
