@@ -547,6 +547,7 @@ function renderCard(card: OracleCard, record: DrawRecord, openFromArchive = fals
 
   const reducedMotion = isReducedMotion();
   mountHoloCard(flip, card, record, reducedMotion);
+  bindSealedCardPointer(flip, reducedMotion);
   bindPasswordlessForm("first-archive", "SAVE MY PATH");
   let revealed = false;
 
@@ -554,6 +555,8 @@ function renderCard(card: OracleCard, record: DrawRecord, openFromArchive = fals
     if (revealed) return;
     revealed = true;
 
+    flip.style.removeProperty("--sealed-tilt-x");
+    flip.style.removeProperty("--sealed-tilt-y");
     flip.classList.add("card-flip--revealed");
     screen.classList.remove("reveal-screen--sealed");
     screen.classList.add("reveal-screen--revealed");
@@ -570,6 +573,28 @@ function renderCard(card: OracleCard, record: DrawRecord, openFromArchive = fals
   });
 
   if (openFromArchive) reveal();
+}
+
+function bindSealedCardPointer(flip: HTMLDivElement, reducedMotion: boolean): void {
+  if (reducedMotion) return;
+
+  const resetTilt = (): void => {
+    flip.style.setProperty("--sealed-tilt-x", "0deg");
+    flip.style.setProperty("--sealed-tilt-y", "0deg");
+  };
+
+  flip.addEventListener("pointermove", (event) => {
+    if (flip.classList.contains("card-flip--revealed") || event.pointerType === "touch") return;
+    const bounds = flip.getBoundingClientRect();
+    if (bounds.width === 0 || bounds.height === 0) return;
+
+    const horizontal = Math.max(-1, Math.min(1, ((event.clientX - bounds.left) / bounds.width - 0.5) * 2));
+    const vertical = Math.max(-1, Math.min(1, ((event.clientY - bounds.top) / bounds.height - 0.5) * 2));
+    flip.style.setProperty("--sealed-tilt-x", `${(-vertical * 6).toFixed(2)}deg`);
+    flip.style.setProperty("--sealed-tilt-y", `${(horizontal * 7).toFixed(2)}deg`);
+  });
+  flip.addEventListener("pointerleave", resetTilt);
+  flip.addEventListener("pointercancel", resetTilt);
 }
 
 function mountHoloCard(
