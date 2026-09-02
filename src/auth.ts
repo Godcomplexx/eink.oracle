@@ -57,18 +57,28 @@ export function observeAccountSession(
   return () => data.subscription.unsubscribe();
 }
 
-export async function sendPasswordlessLink(email: string): Promise<void> {
+export async function sendEmailOtp(email: string): Promise<void> {
   if (!supabase) throw new Error("Account service is not configured.");
-  const redirect = new URL(import.meta.env.BASE_URL, window.location.origin);
-  redirect.hash = "account";
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: redirect.toString(),
       shouldCreateUser: true,
     },
   });
   if (error) throw error;
+}
+
+export async function verifyEmailOtp(email: string, token: string): Promise<User> {
+  if (!supabase) throw new Error("Account service is not configured.");
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+  if (error) throw error;
+  if (!data.user) throw new Error("The access code did not create a session.");
+  activeUser = data.user;
+  return data.user;
 }
 
 export async function signOutAccount(): Promise<void> {

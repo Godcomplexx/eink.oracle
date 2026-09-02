@@ -13,9 +13,10 @@ import {
   attachOrRestoreArchive,
   initializeAccountSession,
   observeAccountSession,
-  sendPasswordlessLink,
+  sendEmailOtp,
   signOutAccount,
   syncAccountArchive,
+  verifyEmailOtp,
 } from "./auth";
 import { drawDailyCard, localDateKey } from "./oracle";
 import { loadState, saveState } from "./storage";
@@ -100,6 +101,7 @@ const BROWSER_CODE_AUTH = !accountServiceConfigured;
 const PREVIEW_DATE_STORAGE_KEY = "your-own-houdini:preview-date";
 const BROWSER_ACCOUNT_STORAGE_KEY = "your-own-houdini:browser-account";
 const BROWSER_CHALLENGE_STORAGE_KEY = "your-own-houdini:browser-challenge";
+const EMAIL_OTP_ADDRESS_STORAGE_KEY = "your-own-houdini:email-otp-address";
 
 interface BrowserAccountRecord {
   id: string;
@@ -173,6 +175,31 @@ function createBrowserChallenge(email: string): BrowserChallenge {
   return challenge;
 }
 
+function readEmailOtpAddress(): string | null {
+  if (BROWSER_CODE_AUTH) return null;
+  try {
+    return sessionStorage.getItem(EMAIL_OTP_ADDRESS_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function rememberEmailOtpAddress(email: string): void {
+  try {
+    sessionStorage.setItem(EMAIL_OTP_ADDRESS_STORAGE_KEY, email);
+  } catch {
+    // The form remains usable even when session storage is unavailable.
+  }
+}
+
+function clearEmailOtpAddress(): void {
+  try {
+    sessionStorage.removeItem(EMAIL_OTP_ADDRESS_STORAGE_KEY);
+  } catch {
+    // Nothing else needs to be cleared.
+  }
+}
+
 let state = loadState();
 const previewDate = initializePreviewDate(state.lastDate);
 let activeHolo: HoloCard | null = null;
@@ -183,10 +210,36 @@ let accountReady = BROWSER_CODE_AUTH;
 let accountArchiveConnected = Boolean(accountUser);
 let accountFeedback = "";
 let accountInitialization: Promise<void> = Promise.resolve();
+let accountConnection: { userId: string; promise: Promise<void> } | null = null;
 const CARD_ASPECT_RATIO = 952 / 1652;
 
 function currentDateKey(): string {
   return previewDate ?? localDateKey();
+}
+
+async function connectAccountUser(user: User): Promise<void> {
+  if (accountConnection?.userId === user.id) return accountConnection.promise;
+
+  const promise = (async () => {
+    accountUser = user;
+    const synchronized = await attachOrRestoreArchive(state, user);
+    state = synchronized.state;
+    saveState(state);
+    accountArchiveConnected = true;
+    accountFeedback = synchronized.source === "remote"
+      ? "Account archive restored on this device."
+      : "Browser archive saved to your account.";
+  })();
+
+  accountConnection = { userId: user.id, promise };
+  try {
+    await promise;
+  } catch (error) {
+    accountArchiveConnected = false;
+    throw error;
+  } finally {
+    if (accountConnection?.promise === promise) accountConnection = null;
+  }
 }
 
 const EFFECT_BY_RARITY: Record<Rarity, HoloEffect> = {
@@ -463,16 +516,19 @@ function bindPasswordlessForm(prefix: string, idleButtonLabel: string): void {
     }
 
     button.disabled = true;
-    button.textContent = "SENDING LINK";
+    button.textContent = "SENDING CODE";
     feedback.textContent = "";
     try {
-      await sendPasswordlessLink(input.value.trim());
-      accountFeedback = "Check your email and open the private sign-in link on this device.";
-      feedback.textContent = accountFeedback;
+      const email = input.value.trim();
+      await sendEmailOtp(email);
+      rememberEmailOtpAddress(email);
+      accountFeedback = `Access code sent to ${email}.`;
       form.reset();
+      if (window.location.hash === "#account") renderAccount();
+      else window.location.hash = "account";
     } catch (error) {
       console.error(error);
-      accountFeedback = "The sign-in link could not be sent. Check the address and try again.";
+      accountFeedback = "The access code could not be sent. Check the address and try again.";
       feedback.textContent = accountFeedback;
       button.disabled = false;
       button.textContent = idleButtonLabel;
@@ -1055,8 +1111,8 @@ function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
     : "Draw your first card without an account. Signing in later attaches that observation and never grants another daily draw.";
   const gateIntro = BROWSER_CODE_AUTH
     ? "Enter your email to receive a six-digit access code on this page and open your private deck, observation history and living graph."
-    : "Enter your email to open your private deck, observation history and living graph. Your daily card remains available without an account.";
-  const gateButton = BROWSER_CODE_AUTH ? "CONTINUE" : "EMAIL THE PRIVATE LINK";
+    : "Enter your email to receive a six-digit access code and open your private deck, observation history and living graph.";
+  const gateButton = BROWSER_CODE_AUTH ? "CONTINUE" : "SEND ACCESS CODE";
 
   shell(
     `
@@ -1118,6 +1174,62 @@ function renderBrowserVerification(challenge: BrowserChallenge): void {
     accountArchiveConnected = true;
     accountFeedback = "Archive unlocked. Your existing cards and journey are attached.";
     renderAccount();
+  });
+}
+
+function renderEmailOtpVerification(email: string): void {
+  shell(
+    `
+      <section class="account-copy browser-auth">
+        <p class="eyebrow"><span>ACCOUNT</span><span>EMAIL CODE</span></p>
+        <h1>VERIFY<br />THE ARCHIVE</h1>
+        <p class="account-intro">We sent a six-digit access code to ${escapeXml(email)}.</p>
+        <form class="account-form browser-auth__form" id="email-code-form">
+          <label for="email-code">SIX-DIGIT CODE</label>
+          <div class="account-form__row">
+            <input id="email-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" />
+            <button type="submit">OPEN MY ARCHIVE</button>
+          </div>
+        </form>
+        <p class="account-feedback" id="email-code-feedback" role="status">${escapeXml(accountFeedback)}</p>
+        <button class="account-secondary-button" id="change-account-email" type="button">USE ANOTHER EMAIL</button>
+      </section>`,
+    "account-screen browser-auth-screen",
+  );
+
+  document.querySelector<HTMLButtonElement>("#change-account-email")?.addEventListener("click", () => {
+    clearEmailOtpAddress();
+    accountFeedback = "";
+    renderAccount();
+  });
+
+  document.querySelector<HTMLFormElement>("#email-code-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const input = form.elements.namedItem("code") as HTMLInputElement;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const feedback = document.querySelector<HTMLElement>("#email-code-feedback");
+    if (!button || !feedback || !input.validity.valid) {
+      input.reportValidity();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "VERIFYING";
+    feedback.textContent = "";
+    try {
+      const user = await verifyEmailOtp(email, input.value.replace(/\s/g, ""));
+      await connectAccountUser(user);
+      clearEmailOtpAddress();
+      renderAccount();
+    } catch (error) {
+      console.error(error);
+      accountFeedback = "The code is invalid or has expired. Request a new code and try again.";
+      feedback.textContent = accountFeedback;
+      button.disabled = false;
+      button.textContent = "OPEN MY ARCHIVE";
+      input.select();
+    }
   });
 }
 
@@ -1202,19 +1314,25 @@ function renderAccount(): void {
     return;
   }
 
+  const emailOtpAddress = readEmailOtpAddress();
+  if (emailOtpAddress) {
+    renderEmailOtpVerification(emailOtpAddress);
+    return;
+  }
+
   shell(
     `
       <section class="account-copy">
         <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORDLESS</span></p>
         <h1>SAVE YOUR<br />ARCHIVE</h1>
-        <p class="account-intro">Enter one email address. We will send a private sign-in link — no password, username, phone number or public profile.</p>
-        ${passwordlessFormMarkup("account", "EMAIL THE SIGN-IN LINK", accountFeedback)}
+        <p class="account-intro">Enter one email address. We will send a private six-digit access code — no password, username, phone number or public profile.</p>
+        ${passwordlessFormMarkup("account", "SEND ACCESS CODE", accountFeedback)}
         <p class="account-privacy">Your existing browser archive will be attached after the first sign-in. An account does not grant another daily card.</p>
       </section>`,
     "account-screen",
   );
 
-  bindPasswordlessForm("account", "EMAIL THE SIGN-IN LINK");
+  bindPasswordlessForm("account", "SEND ACCESS CODE");
 }
 
 function renderDrawRoute(): void {
@@ -1270,13 +1388,7 @@ async function startAccountIntegration(): Promise<void> {
   try {
     accountUser = await initializeAccountSession();
     if (accountUser) {
-      const synchronized = await attachOrRestoreArchive(state, accountUser);
-      state = synchronized.state;
-      saveState(state);
-      accountArchiveConnected = true;
-      accountFeedback = synchronized.source === "remote"
-        ? "Account archive restored on this device."
-        : "Browser archive saved to your account.";
+      await connectAccountUser(accountUser);
     }
   } catch (error) {
     console.error(error);
@@ -1296,15 +1408,8 @@ async function startAccountIntegration(): Promise<void> {
     }
 
     if (event === "SIGNED_IN" && session?.user && session.user.id !== accountUser?.id) {
-      accountUser = session.user;
-      void attachOrRestoreArchive(state, accountUser)
-        .then((synchronized) => {
-          state = synchronized.state;
-          saveState(state);
-          accountArchiveConnected = true;
-          accountFeedback = synchronized.source === "remote"
-            ? "Account archive restored on this device."
-            : "Browser archive saved to your account.";
+      void connectAccountUser(session.user)
+        .then(() => {
           renderRoute();
         })
         .catch((error) => {

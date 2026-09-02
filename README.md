@@ -34,16 +34,68 @@ The one-card-per-local-calendar-day limit is enforced in both local development 
 
 ## Private account storage
 
-The first visit and daily card remain anonymous. After the first reveal, the visitor is invited to save the path through a passwordless email link. `MY DECK`, archived card records and `MY JOURNEY` are private account views; the current daily card can still be reopened without signing in. Email is kept in Supabase Auth, and the application does not request a name, username, phone number, birthday or public profile. The existing local collection is attached on the first sign-in, and an existing remote archive wins when the account is opened on another device.
+The first visit and daily card remain anonymous. After the first reveal, the visitor is invited to save the path with a six-digit code sent by email. `MY DECK`, archived card records and `MY JOURNEY` are private account views; the current daily card can still be reopened without signing in. Email is kept in Supabase Auth, and the application does not request a name, username, phone number, birthday or public profile. The existing local collection is attached on the first sign-in, and an existing remote archive wins when the account is opened on another device.
 
-To enable accounts:
+GitHub Pages hosts the static frontend. Supabase provides the hosted PostgreSQL database, authentication API and email-code verification, so the current account flow does not require a separate VPS.
 
-1. Create a Supabase project and run [`supabase/schema.sql`](supabase/schema.sql) in its SQL editor.
-2. Set the production Site URL to `https://godcomplexx.github.io/eink.oracle/` and allow that exact redirect URL. Add `http://localhost:5173/eink.oracle/` and `http://127.0.0.1:5173/eink.oracle/` while developing locally.
-3. Copy [`.env.example`](.env.example) to `.env.local` and provide the project URL and public anonymous key.
-4. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as GitHub repository Actions secrets before deploying Pages.
+### 1. Create the database
 
-The public anonymous key is safe to expose in the built browser application; access to account rows is restricted by Postgres Row Level Security. Never use a Supabase service-role key in Vite or GitHub Pages.
+1. Create a hosted project at [Supabase](https://supabase.com/dashboard).
+2. Open **SQL Editor → New query**.
+3. Paste and run all of [`supabase/schema.sql`](supabase/schema.sql).
+4. Confirm that `oracle_profiles` and `oracle_archives` appear in **Table Editor** and that RLS is enabled.
+
+### 2. Make the authentication email contain a code
+
+1. Open **Authentication → Providers → Email** and keep email sign-in and new-user signup enabled.
+2. Open **Authentication → Email Templates → Magic Link**. Supabase uses this template for both magic links and email OTP.
+3. Replace the link with the OTP variable. A minimal template is:
+
+```html
+<h2>Your Own Houdini</h2>
+<p>Your private archive access code:</p>
+<p style="font-size:32px;letter-spacing:8px"><strong>{{ .Token }}</strong></p>
+<p>This code expires shortly. Ignore this email if you did not request it.</p>
+```
+
+The template must contain `{{ .Token }}` rather than `{{ .ConfirmationURL }}` or Supabase will send a link instead of a six-digit code. OTP expiry and resend limits are configured under the Email provider and Auth rate-limit settings. See the official [passwordless email](https://supabase.com/docs/guides/auth/auth-email-passwordless) and [email template](https://supabase.com/docs/guides/auth/auth-email-templates) documentation.
+
+### 3. Configure email delivery
+
+Supabase's built-in sender is suitable only for initial testing and is heavily rate-limited. For a public release, configure **Project Settings → Authentication → SMTP Settings** with a verified sender from an SMTP provider. Supabase supports any provider that supplies an SMTP host, port, username and password. Verify the sender domain and disable link tracking because this project uses an OTP code. See [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
+
+### 4. Connect local development
+
+Copy [`.env.example`](.env.example) to `.env.local`, then use the **Project URL** and **Publishable key** (or legacy public `anon` key) from the Supabase project's API settings:
+
+```dotenv
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_PUBLIC_PUBLISHABLE_OR_ANON_KEY
+```
+
+Restart `npm run dev` after changing `.env.local`. When both values exist, the site automatically stops showing the temporary on-page code and sends the real code by email.
+
+### 5. Connect GitHub Pages
+
+Store the same two public build values as GitHub Actions secrets. The commands prompt for each value without placing it in shell history:
+
+```bash
+gh secret set VITE_SUPABASE_URL --repo Godcomplexx/eink.oracle
+gh secret set VITE_SUPABASE_ANON_KEY --repo Godcomplexx/eink.oracle
+gh workflow run deploy.yml --repo Godcomplexx/eink.oracle
+```
+
+Check deployment with:
+
+```bash
+gh run watch --repo Godcomplexx/eink.oracle
+```
+
+The public publishable/anonymous key is expected to be present in a browser build; access to account rows is restricted by Postgres Row Level Security. Never put a Supabase secret key or legacy `service_role` key in Vite, `.env.local` committed to Git, or GitHub Pages.
+
+### Final server-side draw
+
+Account authentication and archive synchronization work with the setup above. For a tamper-resistant final release, card selection and the one-draw-per-day check must additionally move from the browser to a Supabase Edge Function. That function should perform the weighted graph draw and write `oracle_draws`, observations, edges and events atomically. The browser must never receive its service-role credential.
 
 ## GitHub Pages
 
