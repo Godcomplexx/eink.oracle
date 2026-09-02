@@ -747,8 +747,6 @@ a:focus-visible {
 }
 
 .card-flip {
-  --sealed-tilt-x: 0deg;
-  --sealed-tilt-y: 0deg;
   position: relative;
   display: grid;
   width: 100%;
@@ -758,8 +756,8 @@ a:focus-visible {
   touch-action: manipulation;
   transform-origin: center;
   transform-style: preserve-3d;
-  transform: rotateY(calc(180deg + var(--sealed-tilt-y))) rotateX(var(--sealed-tilt-x));
-  transition: transform 110ms ease-out;
+  transform: rotateY(180deg);
+  transition: transform 900ms cubic-bezier(0.16, 0.78, 0.18, 1);
 }
 
 .card-flip:focus-visible {
@@ -768,11 +766,8 @@ a:focus-visible {
 }
 
 .card-flip--revealed {
-  --sealed-tilt-x: 0deg;
-  --sealed-tilt-y: 0deg;
   cursor: default;
   transform: none;
-  transition: transform 900ms cubic-bezier(0.16, 0.78, 0.18, 1);
 }
 
 .card-mount .holo-card {
