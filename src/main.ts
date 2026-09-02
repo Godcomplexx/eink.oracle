@@ -891,6 +891,20 @@ function journeyGraphMarkup(): string {
     };
   });
   const pointById = new Map(points.map((point) => [point.record.id, point]));
+  const auraRadius: Record<Rarity, number> = {
+    COMMON: 92,
+    RARE: 112,
+    ARCANE: 132,
+    ANOMALY: 142,
+    HOUDINI: 126,
+  };
+  const auras = points.map(({ record, x, y }, index) => {
+    const seed = seedFromId(`aura:${record.id}`);
+    const driftX = (seed % 35) - 17;
+    const driftY = ((seed >>> 7) % 31) - 15;
+    const radius = auraRadius[record.rarity] + (record.id === state.history.at(-1)?.id ? 16 : 0);
+    return `<circle class="journey-graph__aura rarity-${record.rarity.toLowerCase()}" cx="${x}" cy="${y}" r="${radius}" style="--aura-delay: -${index % 13}s; --aura-x: ${driftX}px; --aura-y: ${driftY}px" />`;
+  }).join("");
   const particles = Array.from({ length: 150 }, (_, index) => {
     const seed = seedFromId(`particle:${index}:${state.anonymousId}`);
     const x = 36 + (seed % Math.max(1, width - 72));
@@ -938,17 +952,14 @@ function journeyGraphMarkup(): string {
   return `
     <svg class="journey-graph" viewBox="0 0 ${width} ${height}" data-view-width="${width}" data-view-height="${height}" data-current-x="${currentPoint?.x ?? centerX}" data-current-y="${currentPoint?.y ?? height / 2}" role="img" aria-label="Your personal card journey graph">
       <defs>
-        <filter id="journey-fluid-blur" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="42" />
+        <filter id="journey-aura-blur" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="48" />
         </filter>
         <filter id="journey-stream-blur" x="-40%" y="-80%" width="180%" height="260%">
           <feGaussianBlur stdDeviation="8" />
         </filter>
       </defs>
-      <g class="journey-graph__fluid" filter="url(#journey-fluid-blur)" aria-hidden="true">
-        <ellipse class="journey-graph__fluid-shape journey-graph__fluid-shape--one" cx="${centerX - 190}" cy="${height * 0.38}" rx="250" ry="120" />
-        <ellipse class="journey-graph__fluid-shape journey-graph__fluid-shape--two" cx="${centerX + 210}" cy="${height * 0.62}" rx="230" ry="135" />
-      </g>
+      <g class="journey-graph__auras" filter="url(#journey-aura-blur)" aria-hidden="true">${auras}</g>
       <g aria-hidden="true">${particles}</g>
       <g aria-hidden="true">${edges}</g>
       <g>${nodes}</g>

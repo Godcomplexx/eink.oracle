@@ -1734,34 +1734,51 @@ a:focus-visible {
   width: 100%;
   min-width: 760px;
   min-height: 580px;
-  background:
-    radial-gradient(circle at 38% 46%, color-mix(in srgb, var(--spectra-rare) 9%, transparent), transparent 28%),
-    radial-gradient(circle at 63% 53%, color-mix(in srgb, var(--spectra-anomaly) 8%, transparent), transparent 25%),
-    radial-gradient(circle, var(--graph-grid) 0 0.65px, transparent 1px) 0 0 / 15px 15px;
-  animation: journey-water-light 18s ease-in-out infinite alternate;
+  background: radial-gradient(circle, var(--graph-grid) 0 0.65px, transparent 1px) 0 0 / 15px 15px;
 }
 
-.journey-graph .rarity-common { --graph-color: var(--spectra-common); }
-.journey-graph .rarity-rare { --graph-color: var(--spectra-rare); }
-.journey-graph .rarity-arcane { --graph-color: var(--spectra-arcane); }
-.journey-graph .rarity-anomaly { --graph-color: var(--spectra-anomaly); }
-.journey-graph .rarity-houdini { --graph-color: var(--spectra-houdini); }
+.journey-graph .rarity-common {
+  --graph-color: var(--spectra-common);
+  --graph-aura: #ffffff;
+  --graph-aura-opacity: 0.12;
+}
 
-.journey-graph__fluid-shape {
+.journey-graph .rarity-rare {
+  --graph-color: var(--spectra-rare);
+  --graph-aura: #36ddff;
+  --graph-aura-opacity: 0.13;
+}
+
+.journey-graph .rarity-arcane {
+  --graph-color: var(--spectra-arcane);
+  --graph-aura: #aa63ff;
+  --graph-aura-opacity: 0.15;
+}
+
+.journey-graph .rarity-anomaly {
+  --graph-color: var(--spectra-anomaly);
+  --graph-aura: #ff37d1;
+  --graph-aura-opacity: 0.16;
+}
+
+.journey-graph .rarity-houdini {
+  --graph-color: var(--spectra-houdini);
+  --graph-aura: #e9ff45;
+  --graph-aura-opacity: 0.14;
+}
+
+.journey-graph__aura {
+  fill: var(--graph-aura);
+  opacity: var(--graph-aura-opacity);
   transform-box: fill-box;
   transform-origin: center;
+  animation: journey-node-aura 13s ease-in-out infinite alternate;
+  animation-delay: var(--aura-delay);
 }
 
-.journey-graph__fluid-shape--one {
-  fill: var(--spectra-rare);
-  opacity: 0.075;
-  animation: journey-fluid-one 16s ease-in-out infinite alternate;
-}
-
-.journey-graph__fluid-shape--two {
-  fill: var(--spectra-anomaly);
-  opacity: 0.065;
-  animation: journey-fluid-two 19s ease-in-out infinite alternate;
+:root[data-theme="light"] .journey-graph__aura {
+  opacity: calc(var(--graph-aura-opacity) * 0.72);
+  mix-blend-mode: multiply;
 }
 
 .journey-graph__particle {
@@ -2096,21 +2113,10 @@ a:focus-visible {
   display: inline-flex;
 }
 
-@keyframes journey-water-light {
-  from { background-position: 0 0, 0 0, 0 0; }
-  to { background-position: 46px -24px, -34px 28px, 15px 15px; }
-}
-
-@keyframes journey-fluid-one {
-  0% { transform: translate(-34px, 8px) scale(0.92, 1.08); }
-  55% { transform: translate(24px, -22px) scale(1.08, 0.94); }
-  100% { transform: translate(48px, 12px) scale(0.98, 1.12); }
-}
-
-@keyframes journey-fluid-two {
-  0% { transform: translate(30px, -12px) scale(1.06, 0.9); }
-  50% { transform: translate(-16px, 25px) scale(0.92, 1.12); }
-  100% { transform: translate(-44px, -5px) scale(1.08, 0.96); }
+@keyframes journey-node-aura {
+  0% { transform: translate(0, 0) scale(0.9, 1.06); }
+  52% { transform: translate(var(--aura-x), var(--aura-y)) scale(1.08, 0.94); }
+  100% { transform: translate(0, 0) scale(0.96, 1.03); }
 }
 
 @keyframes journey-particle-tide {
