@@ -1110,8 +1110,8 @@ function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
     ? "Your first card is already safe in this browser. Signing in attaches it to your private archive and never grants another daily draw."
     : "Draw your first card without an account. Signing in later attaches that observation and never grants another daily draw.";
   const gateIntro = BROWSER_CODE_AUTH
-    ? "Enter your email to receive a six-digit access code on this page and open your private deck, observation history and living graph."
-    : "Enter your email to receive a six-digit access code and open your private deck, observation history and living graph.";
+    ? "Enter your email to receive a one-time access code on this page and open your private deck, observation history and living graph."
+    : "Enter your email to receive a one-time access code and open your private deck, observation history and living graph.";
   const gateButton = BROWSER_CODE_AUTH ? "CONTINUE" : "SEND ACCESS CODE";
 
   shell(
@@ -1136,12 +1136,12 @@ function renderBrowserVerification(challenge: BrowserChallenge): void {
       <section class="account-copy browser-auth">
         <p class="eyebrow"><span>ACCOUNT</span><span>ACCESS CODE</span></p>
         <h1>VERIFY<br />THE ARCHIVE</h1>
-        <p class="account-intro">Use the six-digit private code below to continue as ${escapeXml(challenge.email)}.</p>
+        <p class="account-intro">Use the private access code below to continue as ${escapeXml(challenge.email)}.</p>
         <output class="browser-auth__code" aria-label="Verification code">${visibleCode}</output>
         <form class="account-form browser-auth__form" id="browser-code-form">
-          <label for="browser-code">SIX-DIGIT CODE</label>
+          <label for="browser-code">ACCESS CODE</label>
           <div class="account-form__row">
-            <input id="browser-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" />
+            <input id="browser-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required placeholder="00000000" />
             <button type="submit">OPEN MY ARCHIVE</button>
           </div>
         </form>
@@ -1183,11 +1183,11 @@ function renderEmailOtpVerification(email: string): void {
       <section class="account-copy browser-auth">
         <p class="eyebrow"><span>ACCOUNT</span><span>EMAIL CODE</span></p>
         <h1>VERIFY<br />THE ARCHIVE</h1>
-        <p class="account-intro">We sent a six-digit access code to ${escapeXml(email)}.</p>
+        <p class="account-intro">We sent a one-time access code to ${escapeXml(email)}.</p>
         <form class="account-form browser-auth__form" id="email-code-form">
-          <label for="email-code">SIX-DIGIT CODE</label>
+          <label for="email-code">ACCESS CODE</label>
           <div class="account-form__row">
-            <input id="email-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="000000" />
+            <input id="email-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required placeholder="00000000" />
             <button type="submit">OPEN MY ARCHIVE</button>
           </div>
         </form>
@@ -1304,7 +1304,7 @@ function renderAccount(): void {
         <section class="account-copy browser-auth">
           <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORDLESS</span></p>
           <h1>SAVE YOUR<br />ARCHIVE</h1>
-          <p class="account-intro">Enter your email address. A private six-digit access code will appear on this page.</p>
+          <p class="account-intro">Enter your email address. A private one-time access code will appear on this page.</p>
           ${passwordlessFormMarkup("account", "CONTINUE", accountFeedback)}
           <p class="account-privacy">After verification, MY DECK and MY JOURNEY will open. An account never grants another daily card.</p>
         </section>`,
@@ -1325,7 +1325,7 @@ function renderAccount(): void {
       <section class="account-copy">
         <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORDLESS</span></p>
         <h1>SAVE YOUR<br />ARCHIVE</h1>
-        <p class="account-intro">Enter one email address. We will send a private six-digit access code — no password, username, phone number or public profile.</p>
+        <p class="account-intro">Enter one email address. We will send a private one-time access code — no password, username, phone number or public profile.</p>
         ${passwordlessFormMarkup("account", "SEND ACCESS CODE", accountFeedback)}
         <p class="account-privacy">Your existing browser archive will be attached after the first sign-in. An account does not grant another daily card.</p>
       </section>`,
