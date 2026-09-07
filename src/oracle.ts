@@ -54,9 +54,9 @@ function seededRandom(seed: string): () => number {
   };
 }
 
-function randomForJourney(state: OracleState, date: string): () => number {
+function randomForJourney(state: OracleState, date: string, originId = state.anonymousId): () => number {
   const history = state.history.map((record) => record.cardId).join(",");
-  return seededRandom(`${state.anonymousId}|${date}|${history}|${ORACLE_CONFIG.algorithmVersion}`);
+  return seededRandom(`${originId}|${date}|${history}|${ORACLE_CONFIG.algorithmVersion}`);
 }
 
 function weightedPick<T>(items: T[], weight: (item: T) => number, random: () => number): T {
@@ -222,8 +222,13 @@ function selectCard(
   return { card, targetState };
 }
 
-function drawId(date: string, sequence: number, cardId: string): string {
-  return `draw:${date}:${String(sequence).padStart(4, "0")}:${cardId}`;
+function drawId(date: string, sequence: number, cardId: string, originId: string): string {
+  return `draw:${date}:${String(sequence).padStart(4, "0")}:${cardId}:${originId}`;
+}
+
+export interface DrawOptions {
+  allowSameDate?: boolean;
+  originId?: string;
 }
 
 export function applyGraphEffect(
@@ -310,19 +315,21 @@ export function drawDailyCard(
   sourceState: OracleState,
   date = localDateKey(),
   random?: () => number,
+  options: DrawOptions = {},
 ): DrawResult {
-  if (sourceState.lastDate === date) {
+  if (!options.allowSameDate && sourceState.lastDate === date) {
     throw new Error("A card has already been drawn for this date.");
   }
 
   const state = structuredClone(sourceState);
-  const journeyRandom = random ?? randomForJourney(state, date);
+  const originId = options.originId ?? state.anonymousId;
+  const journeyRandom = random ?? randomForJourney(state, date, originId);
   const previousState = state.currentNode;
   const previousDrawId = state.history.at(-1)?.id ?? null;
   const sequence = state.history.length + 1;
   const { card, targetState } = selectCard(state, journeyRandom);
   if (usesConditionBypass(card, state)) state.conditionBypassDraws -= 1;
-  const id = drawId(date, sequence, card.id);
+  const id = drawId(date, sequence, card.id, originId);
   const { resultingState, edgeType } = applyGraphEffect(card, state, id, date, journeyRandom);
   const record: DrawRecord = {
     id,
@@ -350,7 +357,9 @@ export function drawDailyCard(
     toState: resultingState,
     type: edgeType,
   });
-  state.streak = isYesterday(state.lastDate, date) ? state.streak + 1 : 1;
+  state.streak = state.lastDate === date
+    ? state.streak
+    : isYesterday(state.lastDate, date) ? state.streak + 1 : 1;
   state.lastDate = date;
   state.daysWithoutRare = RARE_RARITIES.has(card.rarity) ? 0 : state.daysWithoutRare + 1;
   state.deckVersion = ORACLE_CONFIG.deckVersion;

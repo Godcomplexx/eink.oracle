@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
-import { loadState, saveState } from "./storage";
+import { drawDailyCard } from "./oracle";
+import { createInitialState, loadState, mergeOracleStates, saveState } from "./storage";
 
 class MemoryStorage implements Storage {
   private readonly values = new Map<string, string>();
@@ -90,5 +91,41 @@ describe("journey storage", () => {
     saveState(migrated);
 
     expect(loadState()).toEqual(migrated);
+  });
+
+  it("joins separate browser observations from the same date into one graph", () => {
+    const canonical = drawDailyCard(
+      createInitialState("archive-seed"),
+      "2026-09-07",
+      () => 0.1,
+      { originId: "browser-a" },
+    ).state;
+    const incoming = drawDailyCard(
+      createInitialState("guest-seed"),
+      "2026-09-07",
+      () => 0.9,
+      { originId: "browser-b" },
+    ).state;
+
+    const merged = mergeOracleStates(canonical, incoming);
+
+    expect(merged.addedCount).toBe(1);
+    expect(merged.state.anonymousId).toBe("archive-seed");
+    expect(merged.state.history).toHaveLength(2);
+    expect(merged.state.history.map((record) => record.date)).toEqual([
+      "2026-09-07",
+      "2026-09-07",
+    ]);
+    expect(merged.state.history.map((record) => record.sequence)).toEqual([1, 2]);
+    expect(merged.state.graph.edges).toHaveLength(2);
+    expect(merged.state.streak).toBe(1);
+  });
+
+  it("does not duplicate observations already present in the account", () => {
+    const canonical = drawDailyCard(createInitialState("same-archive"), "2026-09-07").state;
+    const merged = mergeOracleStates(canonical, structuredClone(canonical));
+
+    expect(merged.addedCount).toBe(0);
+    expect(merged.state.history).toEqual(canonical.history);
   });
 });

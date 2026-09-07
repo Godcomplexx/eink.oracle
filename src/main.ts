@@ -38,6 +38,34 @@ const app = appRoot;
 type ColorTheme = "dark" | "light";
 
 const THEME_STORAGE_KEY = "your-own-houdini:color-theme";
+const BROWSER_ID_STORAGE_KEY = "your-own-houdini:browser-id:v1";
+const BROWSER_DRAWS_STORAGE_KEY = "your-own-houdini:browser-draws:v1";
+
+function loadBrowserId(): string {
+  try {
+    const stored = localStorage.getItem(BROWSER_ID_STORAGE_KEY);
+    if (stored) return stored;
+    const id = crypto.randomUUID();
+    localStorage.setItem(BROWSER_ID_STORAGE_KEY, id);
+    return id;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
+function loadBrowserDraws(): Record<string, string> {
+  try {
+    const stored = localStorage.getItem(BROWSER_DRAWS_STORAGE_KEY);
+    if (!stored) return {};
+    const parsed = JSON.parse(stored) as unknown;
+    if (!parsed || typeof parsed !== "object") return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+    );
+  } catch {
+    return {};
+  }
+}
 
 function storedColorTheme(): ColorTheme | null {
   try {
@@ -201,6 +229,19 @@ function clearEmailOtpAddress(): void {
 }
 
 let state = loadState();
+const browserId = loadBrowserId();
+const browserDraws = loadBrowserDraws();
+if (Object.keys(browserDraws).length === 0 && state.lastDate) {
+  const legacyBrowserRecord = [...state.history].reverse().find((record) => record.date === state.lastDate);
+  if (legacyBrowserRecord) {
+    browserDraws[state.lastDate] = legacyBrowserRecord.id;
+    try {
+      localStorage.setItem(BROWSER_DRAWS_STORAGE_KEY, JSON.stringify(browserDraws));
+    } catch {
+      // The in-memory browser limit still applies for this visit.
+    }
+  }
+}
 const previewDate = initializePreviewDate(state.lastDate);
 let activeHolo: HoloCard | null = null;
 let activeScreenCleanup: (() => void) | null = null;
@@ -212,6 +253,15 @@ let accountFeedback = "";
 let accountInitialization: Promise<void> = Promise.resolve();
 let accountConnection: { userId: string; promise: Promise<void> } | null = null;
 const CARD_ASPECT_RATIO = 952 / 1652;
+
+function rememberBrowserDraw(date: string, drawId: string): void {
+  browserDraws[date] = drawId;
+  try {
+    localStorage.setItem(BROWSER_DRAWS_STORAGE_KEY, JSON.stringify(browserDraws));
+  } catch {
+    // The in-memory browser limit still applies for this visit.
+  }
+}
 
 function currentDateKey(): string {
   return previewDate ?? localDateKey();
@@ -397,7 +447,11 @@ async function handleReveal(event: MouseEvent): Promise<void> {
   try {
     await accountInitialization;
     const today = currentDateKey();
-    const result = drawDailyCard(state, today);
+    const result = drawDailyCard(state, today, undefined, {
+      allowSameDate: true,
+      originId: browserId,
+    });
+    rememberBrowserDraw(today, result.record.id);
     saveState(result.state);
     state = result.state;
 
@@ -417,7 +471,7 @@ async function handleReveal(event: MouseEvent): Promise<void> {
       }
     }
 
-    const record = state.history.find((candidate) => candidate.date === today) ?? result.record;
+    const record = state.history.find((candidate) => candidate.id === result.record.id) ?? result.record;
     const card = CARDS.find((candidate) => candidate.id === record.cardId) ?? result.card;
 
     const artReady = preloadImage(card.art);
@@ -696,11 +750,12 @@ async function viewTodayCard(button: HTMLButtonElement, card: OracleCard, record
 }
 
 function renderLocked(): void {
-  const day = Math.max(1, state.history.length);
-  const record = state.history.at(-1);
-  const card = record?.date === currentDateKey()
-    ? CARDS.find((candidate) => candidate.id === record.cardId)
+  const browserDrawId = browserDraws[currentDateKey()];
+  const record = browserDrawId
+    ? state.history.find((candidate) => candidate.id === browserDrawId)
     : undefined;
+  const day = Math.max(1, record?.sequence ?? state.history.length);
+  const card = record ? CARDS.find((candidate) => candidate.id === record.cardId) : undefined;
 
   shell(
     `
@@ -1032,7 +1087,7 @@ function renderJourney(): void {
         <section class="archive-heading journey-heading">
           <p class="eyebrow"><span>MY JOURNEY</span><span>${state.currentNode}</span></p>
           <h1>THE LIVING<br />PATH</h1>
-          <p class="journey-intro">Every point is one daily observation. The route grows with you, but predicts nothing.</p>
+          <p class="journey-intro">Every point is one browser's daily observation. Separate paths can meet in the same archive.</p>
           <div class="archive-summary journey-summary" aria-label="Journey summary">
             <div><strong>${state.history.length}</strong><span>OBSERVED</span></div>
             <div><strong>${Object.keys(state.cardsSeen).length}</strong><span>UNIQUE</span></div>
@@ -1107,8 +1162,8 @@ function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
   }
 
   const archiveNote = state.history.length > 0
-    ? "Your first card is already safe in this browser. Signing in attaches it to your private archive and never grants another daily draw."
-    : "Draw your first card without an account. Signing in later attaches that observation and never grants another daily draw.";
+    ? "Your first card is already safe in this browser. Signing in attaches it to your private archive."
+    : "Draw your first card without an account. Signing in later attaches that observation to your growing archive.";
   const gateIntro = BROWSER_CODE_AUTH
     ? "Enter your email to receive a one-time access code on this page and open your private deck, observation history and living graph."
     : "Enter your email to receive a one-time access code and open your private deck, observation history and living graph.";
@@ -1146,7 +1201,7 @@ function renderBrowserVerification(challenge: BrowserChallenge): void {
           </div>
         </form>
         <p class="account-feedback" id="browser-code-feedback" role="status"></p>
-        <p class="account-privacy">The code opens your existing archive and never grants another daily card.</p>
+        <p class="account-privacy">The code opens your existing archive. Each browser can contribute one observation per day.</p>
       </section>`,
     "account-screen browser-auth-screen",
   );
@@ -1306,7 +1361,7 @@ function renderAccount(): void {
           <h1>SAVE YOUR<br />ARCHIVE</h1>
           <p class="account-intro">Enter your email address. A private one-time access code will appear on this page.</p>
           ${passwordlessFormMarkup("account", "CONTINUE", accountFeedback)}
-          <p class="account-privacy">After verification, MY DECK and MY JOURNEY will open. An account never grants another daily card.</p>
+          <p class="account-privacy">After verification, MY DECK and MY JOURNEY will open. Each browser can contribute one observation per day.</p>
         </section>`,
       "account-screen browser-auth-screen",
     );
@@ -1327,7 +1382,7 @@ function renderAccount(): void {
         <h1>SAVE YOUR<br />ARCHIVE</h1>
         <p class="account-intro">Enter one email address. We will send a private one-time access code — no password, username, phone number or public profile.</p>
         ${passwordlessFormMarkup("account", "SEND ACCESS CODE", accountFeedback)}
-        <p class="account-privacy">Your existing browser archive will be attached after the first sign-in. An account does not grant another daily card.</p>
+        <p class="account-privacy">Your existing browser archive will be attached after the first sign-in. Separate browser observations join the same journey.</p>
       </section>`,
     "account-screen",
   );
@@ -1336,7 +1391,7 @@ function renderAccount(): void {
 }
 
 function renderDrawRoute(): void {
-  if (state.lastDate === currentDateKey()) renderLocked();
+  if (browserDraws[currentDateKey()]) renderLocked();
   else renderLanding();
 }
 

@@ -1,7 +1,7 @@
 import { createClient, type AuthChangeEvent, type Session, type User } from "@supabase/supabase-js";
 
 import { ORACLE_CONFIG } from "./config";
-import { isOracleState, normalizeOracleState } from "./storage";
+import { isOracleState, mergeOracleStates, normalizeOracleState } from "./storage";
 import type { OracleState } from "./types";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() ?? "";
@@ -116,6 +116,52 @@ async function readArchive(user: User): Promise<ArchiveRow | null> {
   return data as ArchiveRow | null;
 }
 
+async function mergeIntoArchive(
+  user: User,
+  incomingState: OracleState,
+  initialArchive?: ArchiveRow,
+): Promise<ArchiveSyncResult> {
+  let canonical = initialArchive ?? await readArchive(user);
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    if (!canonical || !isOracleState(canonical.state)) {
+      return { state: incomingState, source: "local" };
+    }
+
+    const merged = mergeOracleStates(normalizeOracleState(canonical.state), incomingState);
+    archiveRevision = canonical.revision;
+    if (merged.addedCount === 0) {
+      return { state: merged.state, source: "remote" };
+    }
+
+    const { data, error } = await supabase!
+      .from("oracle_archives")
+      .update({
+        state: merged.state,
+        revision: canonical.revision + 1,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", user.id)
+      .eq("revision", canonical.revision)
+      .select("state, revision")
+      .maybeSingle();
+
+    if (error) throw error;
+    if (data) {
+      archiveRevision = (data as ArchiveRow).revision;
+      return { state: merged.state, source: "local" };
+    }
+
+    canonical = await readArchive(user);
+  }
+
+  if (canonical && isOracleState(canonical.state)) {
+    archiveRevision = canonical.revision;
+    return { state: normalizeOracleState(canonical.state), source: "remote" };
+  }
+  return { state: incomingState, source: "local" };
+}
+
 export async function attachOrRestoreArchive(
   localState: OracleState,
   user = activeUser,
@@ -125,9 +171,8 @@ export async function attachOrRestoreArchive(
   const remote = await readArchive(user);
 
   if (remote) {
-    archiveRevision = remote.revision;
     return isOracleState(remote.state)
-      ? { state: normalizeOracleState(remote.state), source: "remote" }
+      ? mergeIntoArchive(user, localState, remote)
       : { state: localState, source: "local" };
   }
 
@@ -157,30 +202,5 @@ export async function syncAccountArchive(
 ): Promise<ArchiveSyncResult> {
   if (!supabase || !user) return { state: nextState, source: "local" };
   if (archiveRevision === null) return attachOrRestoreArchive(nextState, user);
-
-  const expectedRevision = archiveRevision;
-  const { data, error } = await supabase
-    .from("oracle_archives")
-    .update({
-      state: nextState,
-      revision: expectedRevision + 1,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("user_id", user.id)
-    .eq("revision", expectedRevision)
-    .select("state, revision")
-    .maybeSingle();
-
-  if (error) throw error;
-  if (data) {
-    archiveRevision = (data as ArchiveRow).revision;
-    return { state: nextState, source: "local" };
-  }
-
-  const canonical = await readArchive(user);
-  if (canonical && isOracleState(canonical.state)) {
-    archiveRevision = canonical.revision;
-    return { state: normalizeOracleState(canonical.state), source: "remote" };
-  }
-  return attachOrRestoreArchive(nextState, user);
+  return mergeIntoArchive(user, nextState);
 }

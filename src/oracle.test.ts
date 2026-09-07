@@ -84,6 +84,24 @@ describe("daily oracle", () => {
     );
   });
 
+  it("allows one more observation from a different browser on the same date", () => {
+    const first = drawDailyCard(
+      createInitialState("shared-archive"),
+      FIRST_DATE,
+      undefined,
+      { originId: "browser-a" },
+    );
+    const second = drawDailyCard(first.state, FIRST_DATE, undefined, {
+      allowSameDate: true,
+      originId: "browser-b",
+    });
+
+    expect(second.state.history).toHaveLength(2);
+    expect(second.record.id).not.toBe(first.record.id);
+    expect(second.state.streak).toBe(1);
+    expect(second.state.lastDate).toBe(FIRST_DATE);
+  });
+
   it("recognizes an ordered card sequence without requiring consecutive days", () => {
     const first = drawDailyCard(createInitialState("sequence-browser"), FIRST_DATE);
     const second = drawDailyCard(first.state, "2026-09-02");
