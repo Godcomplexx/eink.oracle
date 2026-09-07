@@ -83,9 +83,6 @@ for (const file of cardFiles) {
   if (card.loreId !== null && typeof card.loreId !== "string") errors.push(`${file}: loreId must be a string or null.`);
   if (card.imageKey !== null && typeof card.imageKey !== "string") errors.push(`${file}: imageKey must be a string or null.`);
   if (card.showcase !== undefined && typeof card.showcase !== "boolean") errors.push(`${file}: showcase must be a boolean.`);
-  if (card.entryEligible !== undefined && typeof card.entryEligible !== "boolean") {
-    errors.push(`${file}: entryEligible must be a boolean.`);
-  }
   if (card.selectionWeight !== undefined && (!Number.isFinite(card.selectionWeight) || card.selectionWeight <= 0)) {
     errors.push(`${file}: selectionWeight must be a positive number.`);
   }
@@ -99,9 +96,6 @@ for (const file of cardFiles) {
   }
   if (card.status !== undefined && !cardStatuses.has(card.status)) {
     errors.push(`${file}: status must be "draft" or "live".`);
-  }
-  if (card.entryEligible === true && card.status === "draft") {
-    errors.push(`${file}: a draft card cannot be entryEligible.`);
   }
 
   for (const condition of card.unlockConditions ?? []) {
@@ -240,9 +234,6 @@ for (const { card, file } of cards) {
 }
 
 if (cards.length === 0) errors.push("No card JSON files were found.");
-
-const liveEntryCards = cards.filter(({ card }) => card.status !== "draft" && card.entryEligible === true);
-if (liveEntryCards.length === 0) errors.push("At least one live card must be entryEligible.");
 
 if (errors.length > 0) {
   console.error(`Card content validation failed with ${errors.length} error(s):`);

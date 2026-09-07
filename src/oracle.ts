@@ -194,14 +194,15 @@ function selectCard(
   state: OracleState,
   random: () => number,
 ): { card: OracleCard; targetState: JourneyState } {
-  const available = availableCards(state);
+  // The first observation can be any live card, including cards whose normal
+  // progression conditions have not been reached yet. Later observations use
+  // the graph, unlock conditions and cooldowns.
+  const available = state.history.length === 0 ? CARDS : availableCards(state);
   if (available.length === 0) throw new Error("The live deck has no available cards.");
 
   if (state.history.length === 0) {
-    const declaredEntryCards = available.filter((card) => card.entryEligible === true);
-    const entryCards = declaredEntryCards.length > 0 ? declaredEntryCards : available;
-    const rarity = selectRarity(entryCards, state, random);
-    const rarityPool = entryCards.filter((card) => card.rarity === rarity);
+    const rarity = selectRarity(available, state, random);
+    const rarityPool = available.filter((card) => card.rarity === rarity);
     const card = weightedPick(rarityPool, (candidate) => cardWeight(candidate, state), random);
     return { card, targetState: card.state };
   }

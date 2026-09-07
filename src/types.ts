@@ -48,7 +48,6 @@ export interface OracleCard {
   symbol: string;
   imageKey: string | null;
   imageAlt: string;
-  entryEligible?: boolean;
   selectionWeight?: number;
   mechanic?: string;
   showcase?: boolean;

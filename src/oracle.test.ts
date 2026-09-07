@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { CARDS } from "./cards";
+import { ORACLE_CONFIG } from "./config";
 import { applyGraphEffect, conditionMet, drawDailyCard } from "./oracle";
 import { createInitialState } from "./storage";
 
@@ -17,31 +18,53 @@ describe("daily oracle", () => {
     expect(repeatedCalculation.record.id).toBe(first.record.id);
   });
 
-  it("uses only data-declared entry cards on day one", () => {
-    const entryIds = new Set(CARDS.filter((card) => card.entryEligible).map((card) => card.id));
+  it("allows every live card to be the first observation", () => {
+    const rarities = Array.from(new Set(CARDS.map((card) => card.rarity)));
+    const totalWeight = rarities.reduce(
+      (total, rarity) => total + ORACLE_CONFIG.rarityWeights[rarity],
+      0,
+    );
 
-    for (let index = 0; index < 500; index += 1) {
-      const result = drawDailyCard(createInitialState(`visitor-${index}`), FIRST_DATE);
-      expect(entryIds.has(result.card.id)).toBe(true);
+    for (const expectedCard of CARDS) {
+      const rarityIndex = rarities.indexOf(expectedCard.rarity);
+      const precedingWeight = rarities.slice(0, rarityIndex).reduce(
+        (total, rarity) => total + ORACLE_CONFIG.rarityWeights[rarity],
+        0,
+      );
+      const rarityRandom = (
+        precedingWeight + ORACLE_CONFIG.rarityWeights[expectedCard.rarity] / 2
+      ) / totalWeight;
+      const rarityPool = CARDS.filter((card) => card.rarity === expectedCard.rarity);
+      const cardRandom = (rarityPool.indexOf(expectedCard) + 0.5) / rarityPool.length;
+      const values = [rarityRandom, cardRandom, 0.5];
+      let randomIndex = 0;
+
+      const result = drawDailyCard(
+        createInitialState(`first-${expectedCard.id}`),
+        FIRST_DATE,
+        () => values[randomIndex++] ?? 0.5,
+      );
+
+      expect(result.card.id).toBe(expectedCard.id);
     }
   });
 
-  it("distributes new journeys across the dynamic entry pool", () => {
+  it("applies the configured rarity percentages to first observations", () => {
     const counts = new Map<string, number>();
-    const visitors = 5_000;
+    const samples = 10_000;
 
-    for (let index = 0; index < visitors; index += 1) {
-      const { card } = drawDailyCard(createInitialState(`visitor-${index}`), FIRST_DATE);
-      counts.set(card.id, (counts.get(card.id) ?? 0) + 1);
+    for (let index = 0; index < samples; index += 1) {
+      const quantile = (index + 0.5) / samples;
+      const { card } = drawDailyCard(
+        createInitialState(`sample-${index}`),
+        FIRST_DATE,
+        () => quantile,
+      );
+      counts.set(card.rarity, (counts.get(card.rarity) ?? 0) + 1);
     }
 
-    const entryCards = CARDS.filter((card) => card.entryEligible);
-    const expectedShare = 1 / entryCards.length;
-    expect(counts.size).toBe(entryCards.length);
-    for (const card of entryCards) {
-      const share = (counts.get(card.id) ?? 0) / visitors;
-      expect(share).toBeGreaterThan(expectedShare * 0.75);
-      expect(share).toBeLessThan(expectedShare * 1.25);
+    for (const [rarity, weight] of Object.entries(ORACLE_CONFIG.rarityWeights)) {
+      expect((counts.get(rarity) ?? 0) / samples).toBeCloseTo(weight, 4);
     }
   });
 

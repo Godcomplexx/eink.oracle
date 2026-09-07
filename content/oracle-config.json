@@ -1,6 +1,6 @@
 {
   "deckVersion": 3,
-  "algorithmVersion": 4,
+  "algorithmVersion": 5,
   "entryNode": "OPENING",
   "rarityWeights": {
     "COMMON": 0.97,
