@@ -44,8 +44,7 @@ as $$
 declare
   previous_count integer;
   next_count integer;
-  previous_date text;
-  next_date text;
+  observation_index integer;
 begin
   if new.revision <> old.revision + 1 then
     raise exception 'archive revision must increase by exactly one';
@@ -58,22 +57,21 @@ begin
   previous_count := jsonb_array_length(old.state -> 'history');
   next_count := jsonb_array_length(new.state -> 'history');
 
-  if next_count = previous_count and new.state is distinct from old.state then
-    raise exception 'an existing journey cannot be rewritten';
+  if next_count < previous_count then
+    raise exception 'existing observations cannot be removed';
   end if;
 
-  if next_count = previous_count + 1 then
-    if (new.state -> 'history') - (next_count - 1) <> old.state -> 'history' then
-      raise exception 'existing observations are immutable';
-    end if;
+  if previous_count > 0 then
+    for observation_index in 0..previous_count - 1 loop
+      if new.state -> 'history' -> observation_index
+        is distinct from old.state -> 'history' -> observation_index then
+        raise exception 'existing observations cannot be rewritten';
+      end if;
+    end loop;
+  end if;
 
-    previous_date := old.state ->> 'lastDate';
-    next_date := new.state ->> 'lastDate';
-    if next_date is null or (previous_date is not null and next_date <= previous_date) then
-      raise exception 'only one new daily observation can be appended';
-    end if;
-  elsif next_count <> previous_count then
-    raise exception 'only one observation can be appended per archive update';
+  if next_count = previous_count and new.state is distinct from old.state then
+    raise exception 'an existing journey cannot be rewritten';
   end if;
 
   new.updated_at := now();
@@ -102,9 +100,11 @@ create table if not exists public.oracle_draws (
   deck_version integer not null,
   algorithm_version integer not null,
   created_at timestamptz not null default now(),
-  unique (user_id, draw_date),
   unique (user_id, sequence)
 );
+
+create index if not exists oracle_draws_user_date_idx
+  on public.oracle_draws (user_id, draw_date);
 
 create table if not exists public.oracle_card_observations (
   user_id uuid not null references public.oracle_profiles (id) on delete cascade,
