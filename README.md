@@ -66,11 +66,11 @@ Supabase's built-in sender is suitable only for initial testing and is heavily r
 
 ### 4. Connect local development
 
-Copy [`.env.example`](.env.example) to `.env.local`, then use the **Project URL** and **Publishable key** (or legacy public `anon` key) from the Supabase project's API settings:
+Copy [`.env.example`](.env.example) to `.env.local`, then use the **Project URL** and **Publishable key** from the Supabase project's **Connect** dialog or **Settings → API Keys**:
 
 ```dotenv
 VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR_PUBLIC_PUBLISHABLE_OR_ANON_KEY
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 ```
 
 Restart `npm run dev` after changing `.env.local`. When both values exist, the site automatically stops showing the temporary on-page code and sends the real code by email.
@@ -81,7 +81,7 @@ Store the same two public build values as GitHub Actions secrets. The commands p
 
 ```bash
 gh secret set VITE_SUPABASE_URL --repo Godcomplexx/eink.oracle
-gh secret set VITE_SUPABASE_ANON_KEY --repo Godcomplexx/eink.oracle
+gh secret set VITE_SUPABASE_PUBLISHABLE_KEY --repo Godcomplexx/eink.oracle
 gh workflow run deploy.yml --repo Godcomplexx/eink.oracle
 ```
 
@@ -91,7 +91,7 @@ Check deployment with:
 gh run watch --repo Godcomplexx/eink.oracle
 ```
 
-The public publishable/anonymous key is expected to be present in a browser build; access to account rows is restricted by Postgres Row Level Security. Never put a Supabase secret key or legacy `service_role` key in Vite, `.env.local` committed to Git, or GitHub Pages.
+The public publishable key is expected to be present in a browser build; access to account rows is restricted by Postgres Row Level Security. Never put a Supabase secret key or legacy `service_role` key in Vite, `.env.local` committed to Git, or GitHub Pages.
 
 ### Final server-side draw
 
@@ -104,7 +104,7 @@ The repository Pages source must be set to **GitHub Actions** under
 **Settings → Pages → Build and deployment**. The published URL is:
 
 ```text
-https://godcomplexx.github.io/eink.oracle/
+https://einkoracle.org/
 ```
 
 Development phases and release criteria are tracked in [SITE_IMPLEMENTATION_PLAN.md](SITE_IMPLEMENTATION_PLAN.md).

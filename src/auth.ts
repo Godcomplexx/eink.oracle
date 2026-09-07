@@ -5,12 +5,15 @@ import { isOracleState, normalizeOracleState } from "./storage";
 import type { OracleState } from "./types";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() ?? "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? "";
+const supabasePublishableKey =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()
+  || import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+  || "";
 
-export const accountServiceConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+export const accountServiceConfigured = Boolean(supabaseUrl && supabasePublishableKey);
 
 const supabase = accountServiceConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey, {
+  ? createClient(supabaseUrl, supabasePublishableKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
