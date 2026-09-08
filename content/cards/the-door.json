@@ -1,12 +1,12 @@
 {
   "id": "the-door",
   "title": "THE DOOR",
-  "message": "It is not asking whether you are ready.",
-  "meaning": "A threshold, an available beginning, and the choice to move before certainty arrives.",
+  "message": "An opening is not a promise. It is enough that it exists.",
+  "meaning": "The Door is access without certainty.\n\nSomething that was enclosed is now open, but the card refuses to show what waits beyond it. The possibility matters before the destination does.\n\nYou do not need to know where an opening leads in order to recognize that your situation is no longer closed.",
   "rarity": "COMMON",
   "theme": "BEGINNING",
   "state": "OPENING",
-  "tags": ["threshold", "choice", "beginning"],
+  "tags": ["OPENING", "POSSIBILITY", "TRANSITION"],
   "loreId": null,
   "nextNodes": ["DISCOVERY", "ACTION"],
   "unlockConditions": [],
@@ -14,7 +14,7 @@
   "cooldown": 21,
   "element": "AIR",
   "symbol": "□",
-  "imageKey": null,
-  "imageAlt": "Symbolic placeholder artwork for The Door",
-  "status": "draft"
+  "imageKey": "the-door",
+  "imageAlt": "An open door casting light into a vast dark interior",
+  "status": "live"
 }

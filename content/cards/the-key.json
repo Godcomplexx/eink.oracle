@@ -1,12 +1,12 @@
 {
   "id": "the-key",
   "title": "THE KEY",
-  "message": "Some doors appear only after you have the means to leave.",
-  "meaning": "Access, permission, and recognizing that a solution can also create a new responsibility.",
+  "message": "Something changes the moment you commit.",
+  "meaning": "The Key is potential becoming action.\n\nThe mechanism has already begun to move. The important moment is no longer deciding whether the lock can open, but accepting that turning the key changes what happens next.\n\nSome possibilities remain theoretical until you act on them.",
   "rarity": "RARE",
   "theme": "ACCESS",
   "state": "ACTION",
-  "tags": ["key", "permission", "hidden-path"],
+  "tags": ["ACTION", "ACCESS", "COMMITMENT"],
   "loreId": "escape-set",
   "nextNodes": ["CHANGE", "DISCOVERY"],
   "unlockConditions": [
@@ -17,7 +17,7 @@
   "cooldown": 30,
   "element": "FIRE",
   "symbol": "⚿",
-  "imageKey": null,
-  "imageAlt": "Symbolic placeholder artwork for The Key",
-  "status": "draft"
+  "imageKey": "the-key",
+  "imageAlt": "A key turning inside the circular mechanism of a monumental door",
+  "status": "live"
 }

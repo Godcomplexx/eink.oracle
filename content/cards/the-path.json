@@ -1,12 +1,12 @@
 {
   "id": "the-path",
   "title": "THE PATH",
-  "message": "A direction becomes real only after the first step.",
-  "meaning": "Movement, commitment, and discovering direction through action rather than prediction.",
+  "message": "The path existed before you noticed it.",
+  "meaning": "The Path is discovery rather than invention.\n\nYou do not always need to create a way forward. Sometimes the route is already present, hidden by scale, habit or the assumption that there should be something more obvious.\n\nThe next direction may become visible only when you look differently.",
   "rarity": "COMMON",
   "theme": "MOVEMENT",
   "state": "DISCOVERY",
-  "tags": ["journey", "motion", "choice"],
+  "tags": ["PATH", "DISCOVERY", "DIRECTION"],
   "loreId": null,
   "nextNodes": ["ACTION", "CHANGE", "REFLECTION"],
   "unlockConditions": [],
@@ -14,7 +14,7 @@
   "cooldown": 22,
   "element": "EARTH",
   "symbol": "↗",
-  "imageKey": null,
-  "imageAlt": "Symbolic placeholder artwork for The Path",
-  "status": "draft"
+  "imageKey": "the-path",
+  "imageAlt": "A narrow path winding between ancient trees through a dark forest",
+  "status": "live"
 }

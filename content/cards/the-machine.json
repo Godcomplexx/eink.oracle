@@ -1,12 +1,12 @@
 {
   "id": "the-machine",
   "title": "THE MACHINE",
-  "message": "It repeats exactly what you taught it to repeat.",
-  "meaning": "Systems, habits, and feedback loops that continue producing the behavior placed inside them.",
+  "message": "A system can change you without explaining what it does.",
+  "meaning": "The Machine is transformation without a visible material cause.\n\nIts components are precise, interconnected and apparently functional, yet the center contains nothing that can be identified as the thing being processed.\n\nSomething enters one state and emerges in another.\n\nUnderstanding every mechanism may still not explain the transformation itself.",
   "rarity": "ARCANE",
   "theme": "SYSTEM",
   "state": "CHANGE",
-  "tags": ["system", "loop", "anomaly"],
+  "tags": ["CHANGE", "SYSTEM", "TRANSFORMATION"],
   "loreId": "houdini-machine",
   "nextNodes": ["ACTION", "RENEWAL"],
   "unlockConditions": [
@@ -17,7 +17,7 @@
   "cooldown": 40,
   "element": "AETHER",
   "symbol": "⌘",
-  "imageKey": null,
-  "imageAlt": "Symbolic placeholder artwork for The Machine",
-  "status": "draft"
+  "imageKey": "the-machine",
+  "imageAlt": "An intricate vertical machine surrounding a dark unidentified center",
+  "status": "live"
 }

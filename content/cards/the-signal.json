@@ -1,12 +1,12 @@
 {
   "id": "the-signal",
   "title": "THE SIGNAL",
-  "message": "The pattern is clearer when you stop calling it noise.",
-  "meaning": "Attention to recurring patterns and the possibility that useful information is already present.",
+  "message": "Something moved before you knew what moved it.",
+  "meaning": "The Signal is evidence before explanation.\n\nA small disturbance appears inside an otherwise still world. You may not know where it came from, what caused it or whether it was intended for you.\n\nFor now, noticing it is enough.",
   "rarity": "COMMON",
   "theme": "ATTENTION",
   "state": "DISCOVERY",
-  "tags": ["pattern", "message", "noise"],
+  "tags": ["SIGNAL", "ATTENTION", "DISCOVERY"],
   "loreId": null,
   "nextNodes": ["REFLECTION", "ACTION"],
   "unlockConditions": [],
@@ -14,7 +14,7 @@
   "cooldown": 26,
   "element": "AIR",
   "symbol": "⌁",
-  "imageKey": null,
-  "imageAlt": "Symbolic placeholder artwork for The Signal",
-  "status": "draft"
+  "imageKey": "the-signal",
+  "imageAlt": "A suspended signal instrument moving inside a vast circular chamber",
+  "status": "live"
 }

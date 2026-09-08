@@ -1,12 +1,12 @@
 {
   "id": "the-moon",
   "title": "THE MOON",
-  "message": "Not everything unclear is trying to deceive you.",
-  "meaning": "Uncertainty, partial knowledge, and allowing ambiguity without inventing a false answer.",
+  "message": "A reflection can be true without being complete.",
+  "meaning": "The Moon is something understood indirectly.\n\nThe source itself remains hidden, while its reflection changes with every movement of the surface. What you perceive may still be real, even when it has been altered by memory, emotion or perspective.\n\nThe card asks you to separate what is there from the form in which you are currently seeing it.",
   "rarity": "COMMON",
-  "theme": "UNCERTAINTY",
+  "theme": "PERCEPTION",
   "state": "REFLECTION",
-  "tags": ["shadow", "cycle", "uncertainty"],
+  "tags": ["REFLECTION", "PERCEPTION", "DEPTH"],
   "loreId": null,
   "nextNodes": ["RELEASE", "RENEWAL"],
   "unlockConditions": [],
@@ -14,7 +14,7 @@
   "cooldown": 28,
   "element": "WATER",
   "symbol": "◒",
-  "imageKey": null,
-  "imageAlt": "Symbolic placeholder artwork for The Moon",
-  "status": "draft"
+  "imageKey": "the-moon",
+  "imageAlt": "Moonlight reflected across dark water beneath a clouded night sky",
+  "status": "live"
 }
