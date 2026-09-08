@@ -992,6 +992,28 @@ a:focus-visible {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.account-form__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.account-form__fields--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.account-form .account-form__field {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.account-form__field > span {
+  color: var(--paper-muted);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
 .account-form input,
 .account-form button,
 .account-secondary-button {
@@ -1008,7 +1030,6 @@ a:focus-visible {
 .account-form input {
   width: 100%;
   padding: 0 18px;
-  border-right: 0;
   outline: none;
 }
 
@@ -1025,6 +1046,43 @@ a:focus-visible {
   padding: 0 22px;
   cursor: pointer;
   transition: background 180ms ease, color 180ms ease;
+}
+
+.account-form__submit {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.account-auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 28px;
+  margin-top: 20px;
+}
+
+.account-auth-links button {
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--paper-muted);
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  transition: border-color 180ms ease, color 180ms ease;
+}
+
+.account-auth-links button:hover:not(:disabled) {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+.archive-invitation__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
 }
 
 .account-form button:hover:not(:disabled),
@@ -2513,6 +2571,10 @@ a:focus-visible {
   }
 
   .account-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .account-form__fields {
     grid-template-columns: 1fr;
   }
 

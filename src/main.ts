@@ -9,14 +9,19 @@ import "./styles.css";
 
 import { CARDS } from "./cards";
 import {
+  accountConnectionSecure,
   accountServiceConfigured,
   attachOrRestoreArchive,
   initializeAccountSession,
   observeAccountSession,
-  sendEmailOtp,
+  registerWithPassword,
+  sendPasswordRecoveryCode,
+  signInWithPassword,
   signOutAccount,
   syncAccountArchive,
-  verifyEmailOtp,
+  updateAccountPassword,
+  verifyPasswordRecoveryCode,
+  verifyRegistrationCode,
 } from "./auth";
 import { drawDailyCard, localDateKey } from "./oracle";
 import { loadState, saveState } from "./storage";
@@ -124,105 +129,42 @@ function bindThemeControl(): void {
 
 applyColorTheme(colorTheme);
 
-const ADVANCE_DAY_ON_REFRESH = import.meta.env.DEV && import.meta.env.VITE_TEST_MODE === "true";
-const BROWSER_CODE_AUTH = !accountServiceConfigured;
-const PREVIEW_DATE_STORAGE_KEY = "your-own-houdini:preview-date";
-const BROWSER_ACCOUNT_STORAGE_KEY = "your-own-houdini:browser-account";
-const BROWSER_CHALLENGE_STORAGE_KEY = "your-own-houdini:browser-challenge";
-const EMAIL_OTP_ADDRESS_STORAGE_KEY = "your-own-houdini:email-otp-address";
+const PENDING_AUTH_STORAGE_KEY = "your-own-houdini:pending-auth:v1";
 
-interface BrowserAccountRecord {
-  id: string;
+type PendingAuthPurpose = "registration" | "recovery";
+type AccountView = "sign-in" | "register" | "forgot" | "change-password";
+
+interface PendingAuth {
   email: string;
+  purpose: PendingAuthPurpose;
 }
 
-interface BrowserChallenge {
-  email: string;
-  code: string;
-}
-
-function nextDateKey(dateKey: string): string {
-  const [year = 0, month = 1, day = 1] = dateKey.split("-").map(Number);
-  const next = new Date(Date.UTC(year, month - 1, day + 1));
-  return [next.getUTCFullYear(), next.getUTCMonth() + 1, next.getUTCDate()]
-    .map((part, index) => index === 0 ? String(part) : String(part).padStart(2, "0"))
-    .join("-");
-}
-
-function initializePreviewDate(lastDrawDate: string | null): string | null {
-  if (!ADVANCE_DAY_ON_REFRESH) return null;
+function readPendingAuth(): PendingAuth | null {
   try {
-    const storedDate = localStorage.getItem(PREVIEW_DATE_STORAGE_KEY);
-    const latestKnownDate = [storedDate, lastDrawDate]
-      .filter((value): value is string => Boolean(value))
-      .sort()
-      .at(-1);
-    const date = latestKnownDate ? nextDateKey(latestKnownDate) : localDateKey();
-    localStorage.setItem(PREVIEW_DATE_STORAGE_KEY, date);
-    return date;
-  } catch {
-    return lastDrawDate ? nextDateKey(lastDrawDate) : localDateKey();
-  }
-}
-
-function loadBrowserAccount(): User | null {
-  if (!BROWSER_CODE_AUTH) return null;
-  try {
-    const raw = localStorage.getItem(BROWSER_ACCOUNT_STORAGE_KEY);
-    if (!raw) return null;
-    const record = JSON.parse(raw) as Partial<BrowserAccountRecord>;
-    if (typeof record.id !== "string" || typeof record.email !== "string") return null;
-    return { id: record.id, email: record.email } as User;
+    const stored = sessionStorage.getItem(PENDING_AUTH_STORAGE_KEY);
+    if (!stored) return null;
+    const pending = JSON.parse(stored) as Partial<PendingAuth>;
+    if (
+      typeof pending.email !== "string"
+      || (pending.purpose !== "registration" && pending.purpose !== "recovery")
+    ) return null;
+    return pending as PendingAuth;
   } catch {
     return null;
   }
 }
 
-function readBrowserChallenge(): BrowserChallenge | null {
-  if (!BROWSER_CODE_AUTH) return null;
+function rememberPendingAuth(pending: PendingAuth): void {
   try {
-    const raw = localStorage.getItem(BROWSER_CHALLENGE_STORAGE_KEY);
-    if (!raw) return null;
-    const challenge = JSON.parse(raw) as Partial<BrowserChallenge>;
-    return typeof challenge.email === "string" && /^\d{6}$/.test(challenge.code ?? "")
-      ? challenge as BrowserChallenge
-      : null;
+    sessionStorage.setItem(PENDING_AUTH_STORAGE_KEY, JSON.stringify(pending));
   } catch {
-    return null;
+    // The confirmation form remains available for the current page.
   }
 }
 
-function createBrowserChallenge(email: string): BrowserChallenge {
-  const random = new Uint32Array(1);
-  crypto.getRandomValues(random);
-  const challenge = {
-    email,
-    code: String(random[0]! % 1_000_000).padStart(6, "0"),
-  };
-  localStorage.setItem(BROWSER_CHALLENGE_STORAGE_KEY, JSON.stringify(challenge));
-  return challenge;
-}
-
-function readEmailOtpAddress(): string | null {
-  if (BROWSER_CODE_AUTH) return null;
+function clearPendingAuth(): void {
   try {
-    return sessionStorage.getItem(EMAIL_OTP_ADDRESS_STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-function rememberEmailOtpAddress(email: string): void {
-  try {
-    sessionStorage.setItem(EMAIL_OTP_ADDRESS_STORAGE_KEY, email);
-  } catch {
-    // The form remains usable even when session storage is unavailable.
-  }
-}
-
-function clearEmailOtpAddress(): void {
-  try {
-    sessionStorage.removeItem(EMAIL_OTP_ADDRESS_STORAGE_KEY);
+    sessionStorage.removeItem(PENDING_AUTH_STORAGE_KEY);
   } catch {
     // Nothing else needs to be cleared.
   }
@@ -242,14 +184,14 @@ if (Object.keys(browserDraws).length === 0 && state.lastDate) {
     }
   }
 }
-const previewDate = initializePreviewDate(state.lastDate);
 let activeHolo: HoloCard | null = null;
 let activeScreenCleanup: (() => void) | null = null;
 let journeyViewportPosition = { left: 0, top: 0 };
-let accountUser: User | null = loadBrowserAccount();
-let accountReady = BROWSER_CODE_AUTH;
-let accountArchiveConnected = Boolean(accountUser);
+let accountUser: User | null = null;
+let accountReady = !accountServiceConfigured;
+let accountArchiveConnected = false;
 let accountFeedback = "";
+let accountView: AccountView = "sign-in";
 let accountInitialization: Promise<void> = Promise.resolve();
 let accountConnection: { userId: string; promise: Promise<void> } | null = null;
 const CARD_ASPECT_RATIO = 952 / 1652;
@@ -264,7 +206,7 @@ function rememberBrowserDraw(date: string, drawId: string): void {
 }
 
 function currentDateKey(): string {
-  return previewDate ?? localDateKey();
+  return localDateKey();
 }
 
 async function connectAccountUser(user: User): Promise<void> {
@@ -531,63 +473,73 @@ function streakMarks(streak: number): string {
   )).join("");
 }
 
-function passwordlessFormMarkup(
-  prefix: string,
-  buttonLabel: string,
-  feedback = "",
-  className = "",
-): string {
+function signInFormMarkup(prefix: string, feedback = ""): string {
   return `
-    <form class="account-form ${className}" id="${prefix}-form">
-      <label for="${prefix}-email">EMAIL</label>
-      <div class="account-form__row">
-        <input id="${prefix}-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="YOU@EXAMPLE.COM" />
-        <button type="submit">${buttonLabel}</button>
+    <form class="account-form" id="${prefix}-form">
+      <div class="account-form__fields">
+        <label class="account-form__field" for="${prefix}-email">
+          <span>EMAIL</span>
+          <input id="${prefix}-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="YOU@EXAMPLE.COM" />
+        </label>
+        <label class="account-form__field" for="${prefix}-password">
+          <span>PASSWORD</span>
+          <input id="${prefix}-password" name="password" type="password" autocomplete="current-password" minlength="8" required placeholder="••••••••" />
+        </label>
       </div>
+      <button class="account-form__submit" type="submit">OPEN MY ARCHIVE</button>
     </form>
-    <p class="account-feedback" id="${prefix}-feedback" role="status">${escapeXml(feedback)}</p>`;
+    <p class="account-feedback" id="${prefix}-feedback" role="status">${escapeXml(feedback)}</p>
+    <div class="account-auth-links">
+      <button type="button" data-account-view="register">CREATE ACCOUNT</button>
+      <button type="button" data-account-view="forgot">FORGOT PASSWORD</button>
+    </div>`;
 }
 
-function bindPasswordlessForm(prefix: string, idleButtonLabel: string): void {
+function bindAccountViewButtons(): void {
+  document.querySelectorAll<HTMLButtonElement>("[data-account-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const view = button.dataset.accountView;
+      if (view === "sign-in" || view === "register" || view === "forgot" || view === "change-password") {
+        accountView = view;
+      }
+      accountFeedback = "";
+      clearPendingAuth();
+      if (window.location.hash === "#account") renderAccount();
+      else window.location.hash = "account";
+    });
+  });
+}
+
+function bindSignInForm(prefix: string): void {
   document.querySelector<HTMLFormElement>(`#${prefix}-form`)?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
-    const input = form.elements.namedItem("email") as HTMLInputElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const feedback = document.querySelector<HTMLElement>(`#${prefix}-feedback`);
-    if (!button || !feedback || !input.validity.valid) {
-      input.reportValidity();
-      return;
-    }
-
-    if (BROWSER_CODE_AUTH) {
-      const challenge = createBrowserChallenge(input.value.trim());
-      accountFeedback = `Access code created for ${challenge.email}.`;
-      form.reset();
-      if (window.location.hash === "#account") renderAccount();
-      else window.location.hash = "account";
+    if (!button || !feedback || !form.checkValidity()) {
+      form.reportValidity();
       return;
     }
 
     button.disabled = true;
-    button.textContent = "SENDING CODE";
+    button.textContent = "OPENING ARCHIVE";
     feedback.textContent = "";
     try {
-      const email = input.value.trim();
-      await sendEmailOtp(email);
-      rememberEmailOtpAddress(email);
-      accountFeedback = `Access code sent to ${email}.`;
-      form.reset();
-      if (window.location.hash === "#account") renderAccount();
-      else window.location.hash = "account";
+      const user = await signInWithPassword(emailInput.value.trim(), passwordInput.value);
+      await connectAccountUser(user);
+      accountFeedback = "Archive unlocked on this device.";
+      renderRoute();
     } catch (error) {
       console.error(error);
-      accountFeedback = "The access code could not be sent. Check the address and try again.";
+      accountFeedback = "The email or password is incorrect. If this account previously used email codes, choose FORGOT PASSWORD to create a password.";
       feedback.textContent = accountFeedback;
       button.disabled = false;
-      button.textContent = idleButtonLabel;
+      button.textContent = "OPEN MY ARCHIVE";
     }
   });
+  bindAccountViewButtons();
 }
 
 function firstObservationInvitation(): string {
@@ -598,8 +550,8 @@ function firstObservationInvitation(): string {
       <p class="archive-invitation__eyebrow">KEEP THE FIRST TRACE</p>
       <h2 id="archive-invitation-title">YOUR CARD IS ONLY THE BEGINNING.</h2>
       <p>Save this observation to unlock your private deck, history and living journey.</p>
-      ${passwordlessFormMarkup("first-archive", "SAVE MY PATH", "", "archive-invitation__form")}
-      <small>NO PASSWORD · NO PUBLIC PROFILE · STILL ONE CARD A DAY</small>
+      <a class="account-secondary-button archive-invitation__button" href="#account">CREATE MY ARCHIVE</a>
+      <small>PRIVATE ACCOUNT · NO PUBLIC PROFILE · ONE OBSERVATION PER BROWSER</small>
     </aside>`;
 }
 
@@ -658,7 +610,6 @@ function renderCard(card: OracleCard, record: DrawRecord, openFromArchive = fals
   const reducedMotion = isReducedMotion();
   mountHoloCard(flip, card, record, reducedMotion);
   bridgeSealedCardPointer(flip, reducedMotion);
-  bindPasswordlessForm("first-archive", "SAVE MY PATH");
   let revealed = false;
 
   const reveal = (): void => {
@@ -1149,7 +1100,33 @@ function renderJourney(): void {
 }
 
 function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
-  if (accountServiceConfigured && !accountReady) {
+  if (!accountServiceConfigured) {
+    shell(
+      `
+        <section class="account-copy archive-gate">
+          <p class="eyebrow"><span>${destination}</span><span>ACCOUNT UNAVAILABLE</span></p>
+          <h1>YOUR ARCHIVE<br />IS SAFE HERE</h1>
+          <p class="account-intro">The private account service is temporarily unavailable. Your browser copy has not been removed.</p>
+        </section>`,
+      "account-screen archive-gate-screen",
+    );
+    return;
+  }
+
+  if (!accountConnectionSecure) {
+    shell(
+      `
+        <section class="account-copy archive-gate">
+          <p class="eyebrow"><span>${destination}</span><span>SECURE CONNECTION REQUIRED</span></p>
+          <h1>THE ARCHIVE<br />STAYS SEALED</h1>
+          <p class="account-intro">Do not enter a password until this site has a valid HTTPS certificate. Your browser copy remains safe.</p>
+        </section>`,
+      "account-screen archive-gate-screen",
+    );
+    return;
+  }
+
+  if (!accountReady) {
     shell(
       `
         <section class="account-copy archive-gate">
@@ -1164,108 +1141,69 @@ function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
   const archiveNote = state.history.length > 0
     ? "Your first card is already safe in this browser. Signing in attaches it to your private archive."
     : "Draw your first card without an account. Signing in later attaches that observation to your growing archive.";
-  const gateIntro = BROWSER_CODE_AUTH
-    ? "Enter your email to receive a one-time access code on this page and open your private deck, observation history and living graph."
-    : "Enter your email to receive a one-time access code and open your private deck, observation history and living graph.";
-  const gateButton = BROWSER_CODE_AUTH ? "CONTINUE" : "SEND ACCESS CODE";
 
   shell(
     `
       <section class="account-copy archive-gate">
         <p class="eyebrow"><span>${destination}</span><span>PRIVATE ARCHIVE</span></p>
         <h1>YOUR ARCHIVE<br />IS SEALED</h1>
-        <p class="account-intro">${gateIntro}</p>
-        ${passwordlessFormMarkup("archive-gate", gateButton)}
+        <p class="account-intro">Sign in with your email and password to open your private deck, observation history and living graph.</p>
+        ${signInFormMarkup("archive-gate")}
         <p class="account-privacy">${archiveNote}</p>
       </section>`,
     "account-screen archive-gate-screen",
   );
 
-  bindPasswordlessForm("archive-gate", gateButton);
+  bindSignInForm("archive-gate");
 }
 
-function renderBrowserVerification(challenge: BrowserChallenge): void {
-  const visibleCode = `${challenge.code.slice(0, 3)} ${challenge.code.slice(3)}`;
+function renderPendingAuth(pending: PendingAuth): void {
+  const isRegistration = pending.purpose === "registration";
   shell(
     `
       <section class="account-copy browser-auth">
-        <p class="eyebrow"><span>ACCOUNT</span><span>ACCESS CODE</span></p>
-        <h1>VERIFY<br />THE ARCHIVE</h1>
-        <p class="account-intro">Use the private access code below to continue as ${escapeXml(challenge.email)}.</p>
-        <output class="browser-auth__code" aria-label="Verification code">${visibleCode}</output>
-        <form class="account-form browser-auth__form" id="browser-code-form">
-          <label for="browser-code">ACCESS CODE</label>
-          <div class="account-form__row">
-            <input id="browser-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required placeholder="00000000" />
-            <button type="submit">OPEN MY ARCHIVE</button>
+        <p class="eyebrow"><span>ACCOUNT</span><span>${isRegistration ? "CONFIRM EMAIL" : "RECOVER PASSWORD"}</span></p>
+        <h1>${isRegistration ? "VERIFY<br />THE ARCHIVE" : "RESET<br />THE PASSWORD"}</h1>
+        <p class="account-intro">We sent a one-time code to ${escapeXml(pending.email)}.</p>
+        <form class="account-form browser-auth__form" id="pending-auth-form">
+          <div class="account-form__fields ${isRegistration ? "account-form__fields--single" : ""}">
+            <label class="account-form__field" for="pending-auth-code">
+              <span>ACCESS CODE</span>
+              <input id="pending-auth-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required placeholder="00000000" />
+            </label>
+            ${isRegistration ? "" : `
+              <label class="account-form__field" for="pending-auth-password">
+                <span>NEW PASSWORD</span>
+                <input id="pending-auth-password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="AT LEAST 8 CHARACTERS" />
+              </label>
+              <label class="account-form__field" for="pending-auth-confirm-password">
+                <span>REPEAT NEW PASSWORD</span>
+                <input id="pending-auth-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="REPEAT PASSWORD" />
+              </label>`}
           </div>
+          <button class="account-form__submit" type="submit">${isRegistration ? "CONFIRM ACCOUNT" : "SAVE NEW PASSWORD"}</button>
         </form>
-        <p class="account-feedback" id="browser-code-feedback" role="status"></p>
-        <p class="account-privacy">The code opens your existing archive. Each browser can contribute one observation per day.</p>
+        <p class="account-feedback" id="pending-auth-feedback" role="status">${escapeXml(accountFeedback)}</p>
+        <button class="account-secondary-button" data-account-view="${isRegistration ? "register" : "forgot"}" type="button">START AGAIN</button>
       </section>`,
     "account-screen browser-auth-screen",
   );
 
-  document.querySelector<HTMLFormElement>("#browser-code-form")?.addEventListener("submit", (event) => {
+  document.querySelector<HTMLFormElement>("#pending-auth-form")?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
-    const input = form.elements.namedItem("code") as HTMLInputElement;
-    const feedback = document.querySelector<HTMLElement>("#browser-code-feedback");
-    const code = input.value.replace(/\s/g, "");
-    if (!input.validity.valid) {
-      input.reportValidity();
-      return;
-    }
-    if (code !== challenge.code) {
-      if (feedback) feedback.textContent = "The access code does not match.";
-      input.select();
-      return;
-    }
-
-    const record: BrowserAccountRecord = { id: crypto.randomUUID(), email: challenge.email };
-    localStorage.setItem(BROWSER_ACCOUNT_STORAGE_KEY, JSON.stringify(record));
-    localStorage.removeItem(BROWSER_CHALLENGE_STORAGE_KEY);
-    accountUser = { id: record.id, email: record.email } as User;
-    accountArchiveConnected = true;
-    accountFeedback = "Archive unlocked. Your existing cards and journey are attached.";
-    renderAccount();
-  });
-}
-
-function renderEmailOtpVerification(email: string): void {
-  shell(
-    `
-      <section class="account-copy browser-auth">
-        <p class="eyebrow"><span>ACCOUNT</span><span>EMAIL CODE</span></p>
-        <h1>VERIFY<br />THE ARCHIVE</h1>
-        <p class="account-intro">We sent a one-time access code to ${escapeXml(email)}.</p>
-        <form class="account-form browser-auth__form" id="email-code-form">
-          <label for="email-code">ACCESS CODE</label>
-          <div class="account-form__row">
-            <input id="email-code" name="code" type="text" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8" required placeholder="00000000" />
-            <button type="submit">OPEN MY ARCHIVE</button>
-          </div>
-        </form>
-        <p class="account-feedback" id="email-code-feedback" role="status">${escapeXml(accountFeedback)}</p>
-        <button class="account-secondary-button" id="change-account-email" type="button">USE ANOTHER EMAIL</button>
-      </section>`,
-    "account-screen browser-auth-screen",
-  );
-
-  document.querySelector<HTMLButtonElement>("#change-account-email")?.addEventListener("click", () => {
-    clearEmailOtpAddress();
-    accountFeedback = "";
-    renderAccount();
-  });
-
-  document.querySelector<HTMLFormElement>("#email-code-form")?.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const input = form.elements.namedItem("code") as HTMLInputElement;
+    const codeInput = form.elements.namedItem("code") as HTMLInputElement;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement | null;
+    const confirmPasswordInput = form.elements.namedItem("confirmPassword") as HTMLInputElement | null;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    const feedback = document.querySelector<HTMLElement>("#email-code-feedback");
-    if (!button || !feedback || !input.validity.valid) {
-      input.reportValidity();
+    const feedback = document.querySelector<HTMLElement>("#pending-auth-feedback");
+    if (!button || !feedback || !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    if (passwordInput && confirmPasswordInput && passwordInput.value !== confirmPasswordInput.value) {
+      feedback.textContent = "The two passwords do not match.";
+      confirmPasswordInput.select();
       return;
     }
 
@@ -1273,22 +1211,224 @@ function renderEmailOtpVerification(email: string): void {
     button.textContent = "VERIFYING";
     feedback.textContent = "";
     try {
-      const user = await verifyEmailOtp(email, input.value.replace(/\s/g, ""));
+      const code = codeInput.value.replace(/\s/g, "");
+      const user = isRegistration
+        ? await verifyRegistrationCode(pending.email, code)
+        : await verifyPasswordRecoveryCode(pending.email, code);
+      if (!isRegistration && passwordInput) await updateAccountPassword(passwordInput.value);
       await connectAccountUser(user);
-      clearEmailOtpAddress();
+      clearPendingAuth();
+      accountView = "sign-in";
+      accountFeedback = isRegistration
+        ? "Email confirmed. Your archive is ready."
+        : "Password changed. Your archive is open.";
       renderAccount();
     } catch (error) {
       console.error(error);
       accountFeedback = "The code is invalid or has expired. Request a new code and try again.";
       feedback.textContent = accountFeedback;
       button.disabled = false;
-      button.textContent = "OPEN MY ARCHIVE";
-      input.select();
+      button.textContent = isRegistration ? "CONFIRM ACCOUNT" : "SAVE NEW PASSWORD";
+      codeInput.select();
     }
   });
+  bindAccountViewButtons();
+}
+
+function renderRegistration(): void {
+  shell(
+    `
+      <section class="account-copy">
+        <p class="eyebrow"><span>ACCOUNT</span><span>REGISTRATION</span></p>
+        <h1>CREATE<br />THE ARCHIVE</h1>
+        <p class="account-intro">Choose an email and password. A one-time code will confirm the address before the archive opens.</p>
+        <form class="account-form" id="registration-form">
+          <div class="account-form__fields">
+            <label class="account-form__field" for="registration-email"><span>EMAIL</span><input id="registration-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="YOU@EXAMPLE.COM" /></label>
+            <label class="account-form__field" for="registration-password"><span>PASSWORD</span><input id="registration-password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="AT LEAST 8 CHARACTERS" /></label>
+            <label class="account-form__field" for="registration-confirm-password"><span>REPEAT PASSWORD</span><input id="registration-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="REPEAT PASSWORD" /></label>
+          </div>
+          <button class="account-form__submit" type="submit">CREATE ACCOUNT</button>
+        </form>
+        <p class="account-feedback" id="registration-feedback" role="status">${escapeXml(accountFeedback)}</p>
+        <button class="account-secondary-button" data-account-view="sign-in" type="button">I ALREADY HAVE AN ACCOUNT</button>
+      </section>`,
+    "account-screen",
+  );
+
+  document.querySelector<HTMLFormElement>("#registration-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement;
+    const confirmPasswordInput = form.elements.namedItem("confirmPassword") as HTMLInputElement;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const feedback = document.querySelector<HTMLElement>("#registration-feedback");
+    if (!button || !feedback || !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    if (passwordInput.value !== confirmPasswordInput.value) {
+      feedback.textContent = "The two passwords do not match.";
+      confirmPasswordInput.select();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "CREATING ACCOUNT";
+    feedback.textContent = "";
+    try {
+      const email = emailInput.value.trim();
+      const result = await registerWithPassword(email, passwordInput.value);
+      if (result.signedIn && result.user) {
+        await connectAccountUser(result.user);
+        accountFeedback = "Account created. Your archive is ready.";
+        renderAccount();
+        return;
+      }
+      rememberPendingAuth({ email, purpose: "registration" });
+      accountFeedback = `Confirmation code sent to ${email}.`;
+      renderPendingAuth({ email, purpose: "registration" });
+    } catch (error) {
+      console.error(error);
+      accountFeedback = "The account could not be created. Check the address and password, or sign in if the account already exists.";
+      feedback.textContent = accountFeedback;
+      button.disabled = false;
+      button.textContent = "CREATE ACCOUNT";
+    }
+  });
+  bindAccountViewButtons();
+}
+
+function renderForgotPassword(): void {
+  shell(
+    `
+      <section class="account-copy">
+        <p class="eyebrow"><span>ACCOUNT</span><span>RECOVERY</span></p>
+        <h1>RECOVER<br />THE ARCHIVE</h1>
+        <p class="account-intro">Enter the account email. We will send one code that lets you choose a new password.</p>
+        <form class="account-form" id="recovery-request-form">
+          <div class="account-form__fields account-form__fields--single">
+            <label class="account-form__field" for="recovery-email"><span>EMAIL</span><input id="recovery-email" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="YOU@EXAMPLE.COM" /></label>
+          </div>
+          <button class="account-form__submit" type="submit">SEND RECOVERY CODE</button>
+        </form>
+        <p class="account-feedback" id="recovery-request-feedback" role="status">${escapeXml(accountFeedback)}</p>
+        <button class="account-secondary-button" data-account-view="sign-in" type="button">BACK TO SIGN IN</button>
+      </section>`,
+    "account-screen",
+  );
+
+  document.querySelector<HTMLFormElement>("#recovery-request-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const emailInput = form.elements.namedItem("email") as HTMLInputElement;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const feedback = document.querySelector<HTMLElement>("#recovery-request-feedback");
+    if (!button || !feedback || !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    button.disabled = true;
+    button.textContent = "SENDING CODE";
+    feedback.textContent = "";
+    try {
+      const email = emailInput.value.trim();
+      await sendPasswordRecoveryCode(email);
+      rememberPendingAuth({ email, purpose: "recovery" });
+      accountFeedback = `Recovery code sent to ${email}.`;
+      renderPendingAuth({ email, purpose: "recovery" });
+    } catch (error) {
+      console.error(error);
+      accountFeedback = "The recovery code could not be sent. Check the address and try again.";
+      feedback.textContent = accountFeedback;
+      button.disabled = false;
+      button.textContent = "SEND RECOVERY CODE";
+    }
+  });
+  bindAccountViewButtons();
+}
+
+function renderChangePassword(): void {
+  shell(
+    `
+      <section class="account-copy">
+        <p class="eyebrow"><span>ACCOUNT</span><span>SECURITY</span></p>
+        <h1>CHANGE<br />THE PASSWORD</h1>
+        <p class="account-intro">Choose a new password for ${escapeXml(accountUser?.email ?? "this account")}.</p>
+        <form class="account-form" id="change-password-form">
+          <div class="account-form__fields">
+            <label class="account-form__field" for="change-password"><span>NEW PASSWORD</span><input id="change-password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="AT LEAST 8 CHARACTERS" /></label>
+            <label class="account-form__field" for="change-confirm-password"><span>REPEAT NEW PASSWORD</span><input id="change-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="REPEAT PASSWORD" /></label>
+          </div>
+          <button class="account-form__submit" type="submit">SAVE NEW PASSWORD</button>
+        </form>
+        <p class="account-feedback" id="change-password-feedback" role="status">${escapeXml(accountFeedback)}</p>
+        <button class="account-secondary-button" data-account-view="sign-in" type="button">BACK TO ACCOUNT</button>
+      </section>`,
+    "account-screen",
+  );
+
+  document.querySelector<HTMLFormElement>("#change-password-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement;
+    const confirmPasswordInput = form.elements.namedItem("confirmPassword") as HTMLInputElement;
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const feedback = document.querySelector<HTMLElement>("#change-password-feedback");
+    if (!button || !feedback || !form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+    if (passwordInput.value !== confirmPasswordInput.value) {
+      feedback.textContent = "The two passwords do not match.";
+      confirmPasswordInput.select();
+      return;
+    }
+    button.disabled = true;
+    button.textContent = "SAVING PASSWORD";
+    try {
+      await updateAccountPassword(passwordInput.value);
+      accountView = "sign-in";
+      accountFeedback = "Password updated.";
+      renderAccount();
+    } catch (error) {
+      console.error(error);
+      feedback.textContent = "The password could not be changed. Please sign in again and retry.";
+      button.disabled = false;
+      button.textContent = "SAVE NEW PASSWORD";
+    }
+  });
+  bindAccountViewButtons();
 }
 
 function renderAccount(): void {
+  if (!accountServiceConfigured) {
+    shell(
+      `
+        <section class="account-copy">
+          <p class="eyebrow"><span>ACCOUNT</span><span>UNAVAILABLE</span></p>
+          <h1>ARCHIVE<br />OFFLINE</h1>
+          <p class="account-intro">The private account service is not connected. Your cards remain safe in this browser.</p>
+        </section>`,
+      "account-screen",
+    );
+    return;
+  }
+
+  if (!accountConnectionSecure) {
+    shell(
+      `
+        <section class="account-copy">
+          <p class="eyebrow"><span>ACCOUNT</span><span>SECURE CONNECTION REQUIRED</span></p>
+          <h1>DO NOT ENTER<br />A PASSWORD</h1>
+          <p class="account-intro">The domain does not have a valid HTTPS certificate yet. Account access will unlock automatically after HTTPS is repaired.</p>
+        </section>`,
+      "account-screen",
+    );
+    return;
+  }
+
   if (!accountReady) {
     shell(
       `
@@ -1301,22 +1441,36 @@ function renderAccount(): void {
     return;
   }
 
+  const pending = readPendingAuth();
+  if (!accountUser && pending) {
+    renderPendingAuth(pending);
+    return;
+  }
+
   if (accountUser) {
+    if (accountView === "change-password") {
+      renderChangePassword();
+      return;
+    }
+
     const email = escapeXml(accountUser.email ?? "PRIVATE ACCOUNT");
     shell(
       `
         <section class="account-copy account-copy--connected">
-          <p class="eyebrow"><span>ACCOUNT</span><span>${BROWSER_CODE_AUTH ? "ARCHIVE SAVED" : accountArchiveConnected ? "ARCHIVE SYNCED" : "SYNC PENDING"}</span></p>
+          <p class="eyebrow"><span>ACCOUNT</span><span>${accountArchiveConnected ? "ARCHIVE SYNCED" : "SYNC PENDING"}</span></p>
           <h1>YOUR PATH<br />IS SAVED</h1>
-          <p class="account-intro">${BROWSER_CODE_AUTH ? "Your cards and journey are attached to this browser archive. This account stores no public profile." : "Your cards and journey can now follow you to another device. This account stores no public profile."}</p>
+          <p class="account-intro">Your cards and journey can follow you to another device. This account stores no public profile.</p>
           <dl class="account-details">
             <div><dt>SIGN-IN EMAIL</dt><dd>${email}</dd></div>
             <div><dt>OBSERVATIONS</dt><dd>${state.history.length}</dd></div>
             <div><dt>UNIQUE CARDS</dt><dd>${Object.keys(state.cardsSeen).length}</dd></div>
-            <div><dt>STORAGE</dt><dd>${BROWSER_CODE_AUTH ? "THIS BROWSER" : "PRIVATE"}</dd></div>
+            <div><dt>STORAGE</dt><dd>PRIVATE</dd></div>
           </dl>
           ${accountFeedback ? `<p class="account-feedback" role="status">${escapeXml(accountFeedback)}</p>` : ""}
-          <button class="account-secondary-button" id="account-sign-out" type="button">SIGN OUT ON THIS DEVICE</button>
+          <div class="account-auth-links account-auth-links--connected">
+            <button type="button" data-account-view="change-password">SET / CHANGE PASSWORD</button>
+            <button id="account-sign-out" type="button">SIGN OUT ON THIS DEVICE</button>
+          </div>
         </section>`,
       "account-screen",
     );
@@ -1326,17 +1480,11 @@ function renderAccount(): void {
       button.disabled = true;
       button.textContent = "SIGNING OUT";
       try {
-        if (BROWSER_CODE_AUTH) {
-          localStorage.removeItem(BROWSER_ACCOUNT_STORAGE_KEY);
-          localStorage.removeItem(BROWSER_CHALLENGE_STORAGE_KEY);
-        } else {
-          await signOutAccount();
-        }
+        await signOutAccount();
         accountUser = null;
         accountArchiveConnected = false;
-        accountFeedback = BROWSER_CODE_AUTH
-          ? "Account closed. The browser archive remains available."
-          : "Cloud archive disconnected. The current browser copy remains available.";
+        accountView = "sign-in";
+        accountFeedback = "Cloud archive disconnected. The current browser copy remains available.";
         renderAccount();
       } catch (error) {
         console.error(error);
@@ -1344,50 +1492,32 @@ function renderAccount(): void {
         renderAccount();
       }
     }, { once: true });
+    bindAccountViewButtons();
     return;
   }
 
-  if (BROWSER_CODE_AUTH) {
-    const challenge = readBrowserChallenge();
-    if (challenge) {
-      renderBrowserVerification(challenge);
-      return;
-    }
-
-    shell(
-      `
-        <section class="account-copy browser-auth">
-          <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORDLESS</span></p>
-          <h1>SAVE YOUR<br />ARCHIVE</h1>
-          <p class="account-intro">Enter your email address. A private one-time access code will appear on this page.</p>
-          ${passwordlessFormMarkup("account", "CONTINUE", accountFeedback)}
-          <p class="account-privacy">After verification, MY DECK and MY JOURNEY will open. Each browser can contribute one observation per day.</p>
-        </section>`,
-      "account-screen browser-auth-screen",
-    );
-    bindPasswordlessForm("account", "CONTINUE");
+  if (accountView === "register") {
+    renderRegistration();
     return;
   }
-
-  const emailOtpAddress = readEmailOtpAddress();
-  if (emailOtpAddress) {
-    renderEmailOtpVerification(emailOtpAddress);
+  if (accountView === "forgot") {
+    renderForgotPassword();
     return;
   }
 
   shell(
     `
       <section class="account-copy">
-        <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORDLESS</span></p>
-        <h1>SAVE YOUR<br />ARCHIVE</h1>
-        <p class="account-intro">Enter one email address. We will send a private one-time access code — no password, username, phone number or public profile.</p>
-        ${passwordlessFormMarkup("account", "SEND ACCESS CODE", accountFeedback)}
-        <p class="account-privacy">Your existing browser archive will be attached after the first sign-in. Separate browser observations join the same journey.</p>
+        <p class="eyebrow"><span>ACCOUNT</span><span>PASSWORD</span></p>
+        <h1>OPEN<br />THE ARCHIVE</h1>
+        <p class="account-intro">Sign in with your email and password. A code is needed only when creating an account or recovering a forgotten password.</p>
+        ${signInFormMarkup("account", accountFeedback)}
+        <p class="account-privacy">Your browser observations will join the private archive after sign-in.</p>
       </section>`,
     "account-screen",
   );
 
-  bindPasswordlessForm("account", "SEND ACCESS CODE");
+  bindSignInForm("account");
 }
 
 function renderDrawRoute(): void {
@@ -1439,7 +1569,10 @@ renderRoute();
 window.addEventListener("hashchange", renderRoute);
 
 async function startAccountIntegration(): Promise<void> {
-  if (BROWSER_CODE_AUTH) return;
+  if (!accountServiceConfigured || !accountConnectionSecure) {
+    accountReady = true;
+    return;
+  }
   try {
     accountUser = await initializeAccountSession();
     if (accountUser) {
@@ -1459,6 +1592,22 @@ async function startAccountIntegration(): Promise<void> {
       accountUser = null;
       accountArchiveConnected = false;
       renderRoute();
+      return;
+    }
+
+    if (event === "PASSWORD_RECOVERY" && session?.user) {
+      accountView = "change-password";
+      clearPendingAuth();
+      void connectAccountUser(session.user)
+        .then(() => {
+          renderAccount();
+        })
+        .catch((error) => {
+          console.error(error);
+          accountArchiveConnected = false;
+          accountFeedback = "Choose a new password, then archive synchronization will retry.";
+          renderAccount();
+        });
       return;
     }
 

@@ -11,6 +11,9 @@ const supabasePublishableKey =
   || "";
 
 export const accountServiceConfigured = Boolean(supabaseUrl && supabasePublishableKey);
+export const accountConnectionSecure = window.isSecureContext
+  || window.location.hostname === "localhost"
+  || window.location.hostname === "127.0.0.1";
 
 const supabase = accountServiceConfigured
   ? createClient(supabaseUrl, supabasePublishableKey, {
@@ -60,18 +63,29 @@ export function observeAccountSession(
   return () => data.subscription.unsubscribe();
 }
 
-export async function sendEmailOtp(email: string): Promise<void> {
+export interface PasswordRegistrationResult {
+  user: User | null;
+  signedIn: boolean;
+}
+
+export async function registerWithPassword(
+  email: string,
+  password: string,
+): Promise<PasswordRegistrationResult> {
   if (!supabase) throw new Error("Account service is not configured.");
-  const { error } = await supabase.auth.signInWithOtp({
+  const { data, error } = await supabase.auth.signUp({
     email,
+    password,
     options: {
-      shouldCreateUser: true,
+      emailRedirectTo: `${window.location.origin}/#account`,
     },
   });
   if (error) throw error;
+  if (data.session?.user) activeUser = data.session.user;
+  return { user: data.user, signedIn: Boolean(data.session) };
 }
 
-export async function verifyEmailOtp(email: string, token: string): Promise<User> {
+export async function verifyRegistrationCode(email: string, token: string): Promise<User> {
   if (!supabase) throw new Error("Account service is not configured.");
   const { data, error } = await supabase.auth.verifyOtp({
     email,
@@ -80,6 +94,45 @@ export async function verifyEmailOtp(email: string, token: string): Promise<User
   });
   if (error) throw error;
   if (!data.user) throw new Error("The access code did not create a session.");
+  activeUser = data.user;
+  return data.user;
+}
+
+export async function signInWithPassword(email: string, password: string): Promise<User> {
+  if (!supabase) throw new Error("Account service is not configured.");
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  if (!data.user) throw new Error("The password did not create a session.");
+  activeUser = data.user;
+  return data.user;
+}
+
+export async function sendPasswordRecoveryCode(email: string): Promise<void> {
+  if (!supabase) throw new Error("Account service is not configured.");
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/#account`,
+  });
+  if (error) throw error;
+}
+
+export async function verifyPasswordRecoveryCode(email: string, token: string): Promise<User> {
+  if (!supabase) throw new Error("Account service is not configured.");
+  const { data, error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "recovery",
+  });
+  if (error) throw error;
+  if (!data.user) throw new Error("The recovery code did not create a session.");
+  activeUser = data.user;
+  return data.user;
+}
+
+export async function updateAccountPassword(password: string): Promise<User> {
+  if (!supabase) throw new Error("Account service is not configured.");
+  const { data, error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+  if (!data.user) throw new Error("The password could not be updated.");
   activeUser = data.user;
   return data.user;
 }
