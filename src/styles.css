@@ -152,6 +152,13 @@ a:focus-visible {
   white-space: nowrap;
 }
 
+.wordmark__mark {
+  display: block;
+  width: clamp(32px, 2.5vw, 42px);
+  height: clamp(32px, 2.5vw, 42px);
+  flex: 0 0 auto;
+}
+
 .site-header__status {
   display: flex;
   align-items: center;
@@ -2787,7 +2794,13 @@ a:focus-visible {
 
 @media (max-width: 360px) {
   .wordmark {
+    gap: 8px;
     letter-spacing: 0.07em;
+  }
+
+  .wordmark__mark {
+    width: 30px;
+    height: 30px;
   }
 
   .site-header__status {
