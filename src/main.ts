@@ -95,7 +95,14 @@ function updateThemeControl(): void {
   button.setAttribute("aria-label", `Use ${nextTheme} theme`);
   button.setAttribute("title", `Use ${nextTheme} theme`);
   button.querySelector<HTMLElement>(".theme-toggle__label")!.textContent = nextTheme.toUpperCase();
-  button.querySelector<HTMLElement>(".theme-toggle__icon")!.textContent = colorTheme === "dark" ? "☼" : "◐";
+  button.querySelector<HTMLElement>(".theme-toggle__icon")!.innerHTML = colorTheme === "dark"
+    ? `<svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="3.5" />
+        <path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.55 1.55M17.55 17.55l1.55 1.55M19.1 4.9l-1.55 1.55M6.45 17.55 4.9 19.1" />
+      </svg>`
+    : `<svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M19.3 15.1A8 8 0 0 1 8.9 4.7 8.1 8.1 0 1 0 19.3 15.1Z" />
+      </svg>`;
 }
 
 function applyColorTheme(theme: ColorTheme, persist = false): void {

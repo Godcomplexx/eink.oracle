@@ -219,15 +219,26 @@ a:focus-visible {
 }
 
 .theme-toggle__icon {
-  display: grid;
+  display: inline-flex;
   width: clamp(22px, 1.6vw, 30px);
   height: clamp(22px, 1.6vw, 30px);
-  place-items: center;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
-  font-size: clamp(16px, calc(0.9vw + 4px), 20px);
-  letter-spacing: 0;
-  line-height: 1;
+}
+
+.theme-toggle__icon svg {
+  display: block;
+  width: 58%;
+  height: 58%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
 }
 
 .status-light {
