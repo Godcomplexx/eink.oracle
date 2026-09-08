@@ -159,6 +159,10 @@ a:focus-visible {
   flex: 0 0 auto;
 }
 
+:root[data-theme="dark"] .wordmark__mark {
+  filter: invert(1);
+}
+
 .site-header__status {
   display: flex;
   align-items: center;

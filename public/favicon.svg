@@ -1,7 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" fill="#000000"/>
-  <path d="M22 7H42L47 12V52L42 57H22L17 52V12Z" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="miter"/>
-  <path d="M25 13H39L42 16V48L39 51H25L22 48V16Z" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linejoin="miter"/>
-  <path d="M32 24L33.4 29.6L39 31L33.4 32.4L32 38L30.6 32.4L25 31L30.6 29.6Z" fill="#FFFFFF"/>
-  <path d="M32 27.8L32.7 30.3L35.2 31L32.7 31.7L32 34.2L31.3 31.7L28.8 31L31.3 30.3Z" fill="#000000"/>
+  <defs>
+    <mask id="hollow-star">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M32 27.8L32.7 30.3L35.2 31L32.7 31.7L32 34.2L31.3 31.7L28.8 31L31.3 30.3Z" fill="#000"/>
+    </mask>
+  </defs>
+  <g fill="none" stroke="#11120f" stroke-linejoin="miter">
+    <path d="M22 7H42L47 12V52L42 57H22L17 52V12Z" stroke-width="2.4"/>
+    <path d="M25 13H39L42 16V48L39 51H25L22 48V16Z" stroke-width="1.7"/>
+  </g>
+  <path d="M32 24L33.4 29.6L39 31L33.4 32.4L32 38L30.6 32.4L25 31L30.6 29.6Z" fill="#11120f" mask="url(#hollow-star)"/>
 </svg>
