@@ -533,11 +533,18 @@ a:focus-visible {
 .reading-index {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 20px;
   color: var(--paper-muted);
   font-size: 13px;
   letter-spacing: 0.2em;
+}
+
+.reading-index span + span {
+  padding-left: 16px;
+  border-left: 1px solid var(--line-strong);
+  color: var(--paper);
 }
 
 .reveal-copy h1 {
@@ -1923,6 +1930,26 @@ a:focus-visible {
 .journey-graph__edge.is-return {
   stroke-dasharray: 5 7;
   stroke-opacity: 0.72;
+}
+
+.journey-graph__edge.is-branch-merge {
+  stroke: var(--paper-muted);
+  stroke-dasharray: 1 9;
+  stroke-linecap: round;
+  stroke-opacity: 0.62;
+  stroke-width: 1.35;
+  animation: none;
+}
+
+.journey-graph__branch-label {
+  fill: var(--paper-muted);
+  stroke: var(--ink);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  font-family: var(--serif);
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  text-anchor: middle;
 }
 
 .journey-graph__node {

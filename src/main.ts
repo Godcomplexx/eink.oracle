@@ -8,6 +8,7 @@ import "@kongyo2/cards-css/styles.css";
 import "./styles.css";
 
 import { CARDS } from "./cards";
+import { ORACLE_CONFIG } from "./config";
 import {
   accountConnectionSecure,
   accountServiceConfigured,
@@ -480,6 +481,11 @@ function streakMarks(streak: number): string {
   )).join("");
 }
 
+function rarityPercentLabel(rarity: Rarity): string {
+  const percentage = ORACLE_CONFIG.rarityWeights[rarity] * 100;
+  return `${Number.isInteger(percentage) ? percentage.toFixed(0) : percentage.toFixed(1)}%`;
+}
+
 function signInFormMarkup(prefix: string, feedback = ""): string {
   return `
     <form class="account-form" id="${prefix}-form">
@@ -572,7 +578,10 @@ function renderCard(card: OracleCard, record: DrawRecord, openFromArchive = fals
       <section class="reveal-copy">
         <p class="eyebrow"><span>DAY ${dayLabel(record.sequence)}</span><span>${openFromArchive || record.date !== currentDateKey() ? "ARCHIVE RECORD" : "TODAY'S CARD"}</span></p>
         ${openFromArchive ? '<a class="reading-back-link" href="#journey">BACK TO MY JOURNEY</a>' : ""}
-        <div class="reading-index"><span>${record.state}</span></div>
+        <div class="reading-index">
+          <span>${record.state}</span>
+          <span>${card.rarity} · ${rarityPercentLabel(card.rarity)} BASE RARITY</span>
+        </div>
         <h1>${card.title}</h1>
         <blockquote>${card.message}</blockquote>
         <div class="reading-meta">
@@ -996,6 +1005,20 @@ function journeyGraphMarkup(): string {
       <path class="journey-graph__stream ${classes}" d="${path}" />
       <path class="journey-graph__edge ${classes}" d="${path}" />`;
   }).join("");
+  const branchMerges = points.map((to, index) => {
+    if (index === 0 || to.record.previousDrawId !== null) return "";
+    const from = points[index - 1];
+    if (!from) return "";
+    const offset = ((seedFromId(`branch:${to.record.id}`) % 31) - 15) * 0.7;
+    const middleX = (from.x + to.x) / 2 + offset;
+    const middleY = (from.y + to.y) / 2 - offset;
+    const path = `M ${from.x} ${from.y} Q ${middleX} ${middleY} ${to.x} ${to.y}`;
+    return `
+      <g class="journey-graph__branch-merge" aria-hidden="true">
+        <path class="journey-graph__edge is-branch-merge" d="${path}" />
+        <text class="journey-graph__branch-label" x="${middleX}" y="${middleY - 9}">BRANCH / MERGE</text>
+      </g>`;
+  }).join("");
   const currentId = state.history.at(-1)?.id;
   const currentPoint = points.find((point) => point.record.id === currentId);
   const labelPlacements = journeyLabelPlacements(points, width, height, currentId);
@@ -1030,7 +1053,7 @@ function journeyGraphMarkup(): string {
       </defs>
       <g class="journey-graph__auras" filter="url(#journey-aura-blur)" aria-hidden="true">${auras}</g>
       <g aria-hidden="true">${particles}</g>
-      <g aria-hidden="true">${edges}</g>
+      <g aria-hidden="true">${branchMerges}${edges}</g>
       <g>${nodes}</g>
     </svg>`;
 }
@@ -1060,11 +1083,11 @@ function renderJourney(): void {
           <footer class="journey-canvas__footer">
             <span>OBSERVATION TYPE</span>
             <ul aria-label="Rarity legend">
-              <li class="rarity-common"><i></i><span>COMMON</span></li>
-              <li class="rarity-rare"><i></i><span>RARE</span></li>
-              <li class="rarity-arcane"><i></i><span>ARCANE</span></li>
-              <li class="rarity-anomaly"><i></i><span>ANOMALY</span></li>
-              <li class="rarity-houdini"><i></i><span>HOUDINI</span></li>
+              <li class="rarity-common"><i></i><span>COMMON ${rarityPercentLabel("COMMON")}</span></li>
+              <li class="rarity-rare"><i></i><span>RARE ${rarityPercentLabel("RARE")}</span></li>
+              <li class="rarity-arcane"><i></i><span>ARCANE ${rarityPercentLabel("ARCANE")}</span></li>
+              <li class="rarity-anomaly"><i></i><span>ANOMALY ${rarityPercentLabel("ANOMALY")}</span></li>
+              <li class="rarity-houdini"><i></i><span>HOUDINI ${rarityPercentLabel("HOUDINI")}</span></li>
             </ul>
           </footer>
         </section>` : `
