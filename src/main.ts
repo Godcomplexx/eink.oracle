@@ -326,7 +326,6 @@ function shell(content: string, screenClass: string): void {
     <div class="app-shell">
       <header class="site-header">
         <a class="wordmark" href="#draw" aria-label="Your Own Houdini home">
-          <img class="wordmark__mark" src="/oracle-mark.svg?v=2" alt="" aria-hidden="true" />
           <span>YOUR OWN HOUDINI</span>
         </a>
         <nav class="site-nav" aria-label="Your archive">
