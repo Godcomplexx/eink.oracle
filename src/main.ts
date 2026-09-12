@@ -344,6 +344,10 @@ function shell(content: string, screenClass: string): void {
       <main class="site-main ${screenClass}" id="main-content" aria-live="polite">
         ${content}
       </main>
+      <footer class="site-footer">
+        <a href="#privacy" ${route === "privacy" ? 'aria-current="page"' : ""}>PRIVACY POLICY</a>
+        <a href="#terms" ${route === "terms" ? 'aria-current="page"' : ""}>TERMS &amp; CONDITIONS</a>
+      </footer>
     </div>`;
 
   bindThemeControl();
@@ -1278,6 +1282,10 @@ function renderRegistration(): void {
             <label class="account-form__field" for="registration-password"><span>PASSWORD</span><input id="registration-password" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="AT LEAST 8 CHARACTERS" /></label>
             <label class="account-form__field" for="registration-confirm-password"><span>REPEAT PASSWORD</span><input id="registration-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required placeholder="REPEAT PASSWORD" /></label>
           </div>
+          <label class="account-form__consent">
+            <input id="registration-consent" name="consent" type="checkbox" required />
+            <span>I agree to the <a href="#terms">Terms &amp; Conditions</a> and <a href="#privacy">Privacy Policy</a>.</span>
+          </label>
           <button class="account-form__submit" type="submit">CREATE ACCOUNT</button>
         </form>
         <p class="account-feedback" id="registration-feedback" role="status">${escapeXml(accountFeedback)}</p>
@@ -1292,10 +1300,15 @@ function renderRegistration(): void {
     const emailInput = form.elements.namedItem("email") as HTMLInputElement;
     const passwordInput = form.elements.namedItem("password") as HTMLInputElement;
     const confirmPasswordInput = form.elements.namedItem("confirmPassword") as HTMLInputElement;
+    const consentInput = form.elements.namedItem("consent") as HTMLInputElement;
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const feedback = document.querySelector<HTMLElement>("#registration-feedback");
     if (!button || !feedback || !form.checkValidity()) {
       form.reportValidity();
+      return;
+    }
+    if (!consentInput.checked) {
+      feedback.textContent = "Please agree to the Terms & Conditions and Privacy Policy to continue.";
       return;
     }
     if (passwordInput.value !== confirmPasswordInput.value) {
@@ -1550,6 +1563,99 @@ function renderAccount(): void {
   bindSignInForm("account");
 }
 
+const LEGAL_LAST_UPDATED = "2026-09-12";
+
+function renderPrivacyPolicy(): void {
+  shell(
+    `
+      <section class="account-copy legal-copy">
+        <p class="eyebrow"><span>ARCHIVE</span><span>LAST UPDATED ${LEGAL_LAST_UPDATED}</span></p>
+        <h1>PRIVACY<br />POLICY</h1>
+        <div class="legal-body">
+          <p class="account-intro">Your Own Houdini is an independent, individually-run hobby project — not a registered company. This page explains what it does with your data in plain terms.</p>
+
+          <h2>What stays on your device</h2>
+          <p>If you never sign in, nothing about your visit leaves your browser. Your daily card, streak and journey are kept only in this browser's <code>localStorage</code>. Clearing your site data, using a different browser, or switching devices starts a new, disconnected journey.</p>
+
+          <h2>What we collect if you create an account</h2>
+          <p>Creating an account is optional and only needed to keep your journey when you switch browsers or devices. If you do, we collect:</p>
+          <ul>
+            <li>Your email address, used only for sign-in, one-time codes and password recovery.</li>
+            <li>Your password, which we never see in plain text — it is handled and hashed by our authentication provider, Supabase.</li>
+            <li>Your oracle progress (drawn cards, dates, streak and journey graph) so it can follow you across devices.</li>
+          </ul>
+          <p>We do not collect your name, location, payment details or any information beyond what is listed above.</p>
+
+          <h2>Cookies and tracking</h2>
+          <p>This site does not set cookies and does not run any analytics, advertising or third-party tracking scripts of any kind. The only client-side storage used is <code>localStorage</code>, for two strictly functional purposes: remembering your daily draw, and — only if you sign in — keeping you logged in. Neither is used to track you across other sites, so no cookie-consent banner is shown.</p>
+
+          <h2>Where account data is stored</h2>
+          <p>Signed-in accounts and journey data are stored with <a href="https://supabase.com/privacy" target="_blank" rel="noreferrer">Supabase</a>, our database and authentication provider. Supabase acts as a data processor on our behalf and has its own privacy policy governing its infrastructure.</p>
+
+          <h2>Card artwork</h2>
+          <p>Card illustrations are produced with AI image-generation tools. See the <a href="#terms">Terms &amp; Conditions</a> for how that affects usage rights.</p>
+
+          <h2>Your rights</h2>
+          <p>You can ask to see, export or permanently delete your account and journey data at any time by emailing <a href="mailto:[email protected]">[email protected]</a>. There is currently no self-service delete button — deletion requests are handled by hand, normally within a few days.</p>
+
+          <h2>Children</h2>
+          <p>This site is not directed at children and does not knowingly collect data from anyone under 16.</p>
+
+          <h2>Changes</h2>
+          <p>If this policy changes, the date at the top of this page will be updated.</p>
+
+          <h2>Contact</h2>
+          <p>Questions about this policy: <a href="mailto:[email protected]">[email protected]</a>.</p>
+        </div>
+      </section>`,
+    "account-screen legal-screen",
+  );
+}
+
+function renderTerms(): void {
+  shell(
+    `
+      <section class="account-copy legal-copy">
+        <p class="eyebrow"><span>ARCHIVE</span><span>LAST UPDATED ${LEGAL_LAST_UPDATED}</span></p>
+        <h1>TERMS &amp;<br />CONDITIONS</h1>
+        <div class="legal-body">
+          <p class="account-intro">By using Your Own Houdini, you agree to the following. It is an independent hobby project, run by an individual and not a registered company.</p>
+
+          <h2>What this is</h2>
+          <p>The card you receive each day is generated by a weighted random algorithm. It is offered for reflection and entertainment only. It is not prophecy, fortune-telling, medical, legal, financial or professional advice of any kind, and no claim of predictive or supernatural accuracy is made — quite the opposite is the entire point of this project.</p>
+
+          <h2>Accounts</h2>
+          <p>Creating an account is optional. You are responsible for keeping your password confidential and for all activity under your account. Provide a real, working email address so sign-in codes and recovery messages reach you.</p>
+
+          <h2>Acceptable use</h2>
+          <p>Do not attempt to disrupt the service, scrape or bulk-extract its content, or reverse engineer the draw algorithm to manipulate your own or another account's results.</p>
+
+          <h2>Card artwork and intellectual property</h2>
+          <p>The site's design, code, writing and card concepts belong to the operator. Card illustrations are produced using AI image-generation tools. Copyright treatment of AI-generated imagery varies by country and is still legally unsettled in several jurisdictions, so no exclusive copyright is asserted over individual card images beyond whatever rights the operator holds under the relevant tool's terms of service. You may view and share cards you personally drew for non-commercial purposes; you may not resell, redistribute in bulk, or claim authorship of the artwork.</p>
+
+          <h2>No warranty</h2>
+          <p>The service is provided "as is," without warranty of any kind, express or implied. We do not guarantee uninterrupted availability, that your journey data will never be lost, or any particular outcome from using the site.</p>
+
+          <h2>Limitation of liability</h2>
+          <p>To the fullest extent permitted by law, the operator is not liable for any indirect, incidental or consequential loss arising from your use of, or inability to use, this site.</p>
+
+          <h2>Termination</h2>
+          <p>You may stop using the service or request account deletion at any time. We may suspend or terminate accounts used to abuse or disrupt the service.</p>
+
+          <h2>Changes</h2>
+          <p>These terms and the service itself may change over time. Continued use after a change means you accept the updated terms. The date at the top of this page reflects the last update.</p>
+
+          <h2>Governing law</h2>
+          <p>[The operator has not yet designated a specific governing jurisdiction for these terms.] Nothing here limits any statutory consumer-protection rights you may have under the mandatory law of your own country of residence.</p>
+
+          <h2>Contact</h2>
+          <p>Questions about these terms: <a href="mailto:[email protected]">[email protected]</a>. See also the <a href="#privacy">Privacy Policy</a>.</p>
+        </div>
+      </section>`,
+    "account-screen legal-screen",
+  );
+}
+
 function renderDrawRoute(): void {
   if (browserDraws[currentDateKey()]) renderLocked();
   else renderLanding();
@@ -1590,6 +1696,14 @@ function renderRoute(): void {
   }
   if (route === "account") {
     renderAccount();
+    return;
+  }
+  if (route === "privacy") {
+    renderPrivacyPolicy();
+    return;
+  }
+  if (route === "terms") {
+    renderTerms();
     return;
   }
   renderDrawRoute();
