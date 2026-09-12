@@ -987,8 +987,31 @@ a:focus-visible {
   text-transform: uppercase;
 }
 
+/* Legal pages carry far more copy than the short account screens .account-copy
+   was built for, so the shared side-by-side hero layout (a wide heading column
+   racing a tall content column) breaks down: long single words like
+   "CONDITIONS" don't fit the narrow heading column and overflow into the
+   content next to it. Stack heading above body instead, full-width, for
+   long-form reading. */
+.account-copy.legal-copy {
+  display: block;
+}
+
+.account-copy.legal-copy > .eyebrow {
+  margin-bottom: clamp(18px, 3vw, 28px);
+}
+
+.account-copy.legal-copy > h1 {
+  max-width: 900px;
+  margin-bottom: clamp(28px, 4vw, 44px);
+  font-size: clamp(44px, 6vw, 88px);
+  line-height: 0.98;
+}
+
 .legal-copy .account-intro {
   margin-bottom: clamp(28px, 4vw, 44px);
+  text-transform: none;
+  letter-spacing: 0.01em;
 }
 
 .legal-body {
