@@ -1,0 +1,19 @@
+{
+  "id": "the-weight",
+  "title": "THE WEIGHT",
+  "message": "You can put something down without proving it was heavy.",
+  "meaning": "The Weight is a burden that has become ordinary through repetition.\n\nYou may have carried it for so long that its presence now feels like part of your structure. The card does not ask whether you were strong enough to hold it.\n\nIt asks whether holding it is still necessary.",
+  "rarity": "RARE",
+  "theme": "BURDEN",
+  "state": "ACTION",
+  "tags": ["BURDEN", "ENDURANCE", "RELEASE"],
+  "loreId": null,
+  "nextNodes": ["RELEASE", "CHANGE"],
+  "unlockConditions": [{ "type": "journey-days", "minimum": 6 }],
+  "graphEffect": { "type": "none" },
+  "cooldown": 33,
+  "element": "EARTH",
+  "symbol": "▼",
+  "imageKey": "the-weight",
+  "imageAlt": "Official card artwork for The Weight"
+}

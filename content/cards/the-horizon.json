@@ -1,0 +1,22 @@
+{
+  "id": "the-horizon",
+  "title": "THE HORIZON",
+  "message": "The edge of what you can see is not the edge of what exists.",
+  "meaning": "The Horizon is a boundary created by perspective.\n\nIt appears to separate the known world from everything beyond it, yet it moves every time you approach. The destination therefore cannot be reached in the form in which it was first imagined.\n\nThe card asks whether you are pursuing a place — or a distance.",
+  "rarity": "ARCANE",
+  "theme": "POSSIBILITY",
+  "state": "RENEWAL",
+  "tags": ["POSSIBILITY", "DISTANCE", "PERSPECTIVE"],
+  "loreId": null,
+  "nextNodes": ["OPENING", "DISCOVERY"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-fog" },
+    { "type": "journey-days", "minimum": 9 }
+  ],
+  "graphEffect": { "type": "unlock-node", "node": "HORIZON_LINE" },
+  "cooldown": 43,
+  "element": "AIR",
+  "symbol": "─",
+  "imageKey": "the-horizon",
+  "imageAlt": "Official card artwork for The Horizon"
+}

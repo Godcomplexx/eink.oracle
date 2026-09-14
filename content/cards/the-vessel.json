@@ -1,0 +1,19 @@
+{
+  "id": "the-vessel",
+  "title": "THE VESSEL",
+  "message": "What you carry changes the shape of what can enter.",
+  "meaning": "The Vessel is capacity with limits.\n\nIt can hold, protect and transport, but only by defining an inside and an outside. The card asks whether what you are carrying still deserves the space it occupies.\n\nMaking room is not the same as becoming empty.",
+  "rarity": "RARE",
+  "theme": "CAPACITY",
+  "state": "ACTION",
+  "tags": ["CAPACITY", "BOUNDARY", "RELEASE"],
+  "loreId": null,
+  "nextNodes": ["RELEASE", "CHANGE"],
+  "unlockConditions": [{ "type": "journey-days", "minimum": 6 }],
+  "graphEffect": { "type": "none" },
+  "cooldown": 32,
+  "element": "WATER",
+  "symbol": "⌾",
+  "imageKey": "the-vessel",
+  "imageAlt": "Official card artwork for The Vessel"
+}

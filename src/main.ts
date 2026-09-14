@@ -1596,7 +1596,7 @@ function renderPrivacyPolicy(): void {
           <p>Card illustrations are produced with AI image-generation tools. See the <a href="#terms">Terms &amp; Conditions</a> for how that affects usage rights.</p>
 
           <h2>Your rights</h2>
-          <p>You can ask to see, export or permanently delete your account and journey data at any time by emailing <a href="mailto:[email protected]">[email protected]</a>. There is currently no self-service delete button — deletion requests are handled by hand, normally within a few days.</p>
+          <p>You can ask to see, export or permanently delete your account and journey data at any time by emailing <a href="mailto:privacy@einkoracle.org">privacy@einkoracle.org</a>. There is currently no self-service delete button — deletion requests are handled by hand, normally within a few days.</p>
 
           <h2>Children</h2>
           <p>This site is not directed at children and does not knowingly collect data from anyone under 16.</p>
@@ -1605,7 +1605,7 @@ function renderPrivacyPolicy(): void {
           <p>If this policy changes, the date at the top of this page will be updated.</p>
 
           <h2>Contact</h2>
-          <p>Questions about this policy: <a href="mailto:[email protected]">[email protected]</a>.</p>
+          <p>Questions about this policy: <a href="mailto:privacy@einkoracle.org">privacy@einkoracle.org</a>.</p>
         </div>
       </section>`,
     "account-screen legal-screen",
@@ -1649,7 +1649,7 @@ function renderTerms(): void {
           <p>[The operator has not yet designated a specific governing jurisdiction for these terms.] Nothing here limits any statutory consumer-protection rights you may have under the mandatory law of your own country of residence.</p>
 
           <h2>Contact</h2>
-          <p>Questions about these terms: <a href="mailto:[email protected]">[email protected]</a>. See also the <a href="#privacy">Privacy Policy</a>.</p>
+          <p>Questions about these terms: <a href="mailto:privacy@einkoracle.org">privacy@einkoracle.org</a>. See also the <a href="#privacy">Privacy Policy</a>.</p>
         </div>
       </section>`,
     "account-screen legal-screen",

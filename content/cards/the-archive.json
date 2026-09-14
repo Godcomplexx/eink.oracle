@@ -1,0 +1,19 @@
+{
+  "id": "the-archive",
+  "title": "THE ARCHIVE",
+  "message": "Nothing is forgotten in exactly the same way it happened.",
+  "meaning": "The Archive is preserved information without guaranteed truth.\n\nRecords survive because someone, or something, decided what was worth keeping. What remains may be accurate, incomplete, distorted or simply separated from the context that once made it understandable.\n\nThe card asks whether remembering and knowing are actually the same thing.",
+  "rarity": "RARE",
+  "theme": "MEMORY",
+  "state": "REFLECTION",
+  "tags": ["MEMORY", "RECORD", "INTERPRETATION"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "RELEASE"],
+  "unlockConditions": [{ "type": "journey-days", "minimum": 7 }],
+  "graphEffect": { "type": "unlock-node", "node": "ARCHIVE_INDEX" },
+  "cooldown": 34,
+  "element": "AETHER",
+  "symbol": "▦",
+  "imageKey": "the-archive",
+  "imageAlt": "Official card artwork for The Archive"
+}

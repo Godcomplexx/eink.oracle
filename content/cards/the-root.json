@@ -1,0 +1,19 @@
+{
+  "id": "the-root",
+  "title": "THE ROOT",
+  "message": "Not all growth is visible.",
+  "meaning": "The Root is the part of change that happens beneath observation.\n\nNothing above the surface may appear different, yet something is strengthening, spreading and preparing to hold more weight.\n\nThe absence of visible progress does not always mean that nothing is happening.",
+  "rarity": "COMMON",
+  "theme": "STABILITY",
+  "state": "OPENING",
+  "tags": ["STABILITY", "GROWTH", "FOUNDATION"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "CHANGE"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 25,
+  "element": "EARTH",
+  "symbol": "⏚",
+  "imageKey": "the-root",
+  "imageAlt": "Official card artwork for The Root"
+}

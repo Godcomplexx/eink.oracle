@@ -1,0 +1,19 @@
+{
+  "id": "the-tide",
+  "title": "THE TIDE",
+  "message": "What leaves is not always gone.",
+  "meaning": "The Tide is movement that does not require permission.\n\nIt advances, withdraws and returns according to forces larger than any single moment. What looks like loss may sometimes be part of a rhythm that has not finished yet.\n\nThe card asks you not to confuse distance with disappearance.",
+  "rarity": "COMMON",
+  "theme": "RETURN",
+  "state": "OPENING",
+  "tags": ["RETURN", "RHYTHM", "DISTANCE"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "RELEASE"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 24,
+  "element": "WATER",
+  "symbol": "≈",
+  "imageKey": "the-tide",
+  "imageAlt": "Official card artwork for The Tide"
+}

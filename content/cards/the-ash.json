@@ -1,0 +1,19 @@
+{
+  "id": "the-ash",
+  "title": "THE ASH",
+  "message": "What is finished does not need to be rebuilt.",
+  "meaning": "The Ash is what remains after something has already completed its transformation.\n\nThere is nothing left to save in its original form. The card does not ask you to mourn the fire, only to notice what no longer needs to be carried forward.\n\nSome endings become lighter once you stop treating them as unfinished.",
+  "rarity": "COMMON",
+  "theme": "RELEASE",
+  "state": "RENEWAL",
+  "tags": ["RELEASE", "ENDING", "TRANSFORMATION"],
+  "loreId": null,
+  "nextNodes": ["OPENING", "REFLECTION"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 23,
+  "element": "FIRE",
+  "symbol": "⁘",
+  "imageKey": "the-ash",
+  "imageAlt": "Official card artwork for The Ash"
+}

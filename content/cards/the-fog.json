@@ -1,0 +1,19 @@
+{
+  "id": "the-fog",
+  "title": "THE FOG",
+  "message": "You do not need to see far to keep moving.",
+  "meaning": "The Fog removes distance without removing the world.\n\nWhat lies ahead still exists even when you cannot currently measure it. The card is not a warning to stop. It is an invitation to reduce the scale of the question.\n\nSometimes the next visible step is enough information.",
+  "rarity": "COMMON",
+  "theme": "UNCERTAINTY",
+  "state": "RENEWAL",
+  "tags": ["UNCERTAINTY", "PERCEPTION", "MOVEMENT"],
+  "loreId": null,
+  "nextNodes": ["DISCOVERY", "OPENING"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 26,
+  "element": "AIR",
+  "symbol": "▨",
+  "imageKey": "the-fog",
+  "imageAlt": "Official card artwork for The Fog"
+}

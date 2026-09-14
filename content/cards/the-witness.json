@@ -1,0 +1,22 @@
+{
+  "id": "the-witness",
+  "title": "THE WITNESS",
+  "message": "Observation changes what can remain unnoticed.",
+  "meaning": "The Witness is the uncomfortable moment when awareness itself becomes part of the event.\n\nNothing in the scene necessarily changes, yet after you have seen it, returning to the previous state becomes impossible.\n\nThe card asks whether something truly changed — or whether you simply became unable to ignore what was already there.",
+  "rarity": "ANOMALY",
+  "theme": "AWARENESS",
+  "state": "RELEASE",
+  "tags": ["AWARENESS", "OBSERVATION", "CHANGE"],
+  "loreId": null,
+  "nextNodes": ["REFLECTION", "RENEWAL"],
+  "unlockConditions": [
+    { "type": "seen-card", "cardId": "the-archive" },
+    { "type": "journey-days", "minimum": 9 }
+  ],
+  "graphEffect": { "type": "none" },
+  "cooldown": 55,
+  "element": "AETHER",
+  "symbol": "◍",
+  "imageKey": "the-witness",
+  "imageAlt": "Official card artwork for The Witness"
+}

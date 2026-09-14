@@ -1,0 +1,19 @@
+{
+  "id": "the-spark",
+  "title": "THE SPARK",
+  "message": "Small does not mean insignificant.",
+  "meaning": "The Spark is the first irreversible moment of movement.\n\nIt is not yet a fire, a decision or a transformation. It is simply the point after which remaining exactly where you were becomes slightly less possible.\n\nThe card asks what might happen if you stop dismissing beginnings because they are small.",
+  "rarity": "COMMON",
+  "theme": "BEGINNING",
+  "state": "OPENING",
+  "tags": ["BEGINNING", "ENERGY", "ACTION"],
+  "loreId": null,
+  "nextNodes": ["ACTION", "DISCOVERY"],
+  "unlockConditions": [],
+  "graphEffect": { "type": "none" },
+  "cooldown": 22,
+  "element": "FIRE",
+  "symbol": "✱",
+  "imageKey": "the-spark",
+  "imageAlt": "Official card artwork for The Spark"
+}
