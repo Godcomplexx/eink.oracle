@@ -1,0 +1,37 @@
+{
+  "id": "the-visitor",
+  "title": "THE VISITOR",
+  "message": "Something unfamiliar is entering your world.",
+  "meaning": "The Visitor is not necessarily a person. It may be a new job, an idea, a contact or a change that has already crossed the threshold.\n\nThe card asks you to notice what has arrived before it becomes familiar.",
+  "rarity": "ANOMALY",
+  "theme": "ARRIVAL",
+  "state": "OPENING",
+  "tags": [
+    "ARRIVAL",
+    "UNFAMILIAR",
+    "THRESHOLD"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "DISCOVERY",
+    "REFLECTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-knock"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 10
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 66,
+  "element": "AETHER",
+  "symbol": "◈",
+  "imageKey": "the-visitor",
+  "imageAlt": "A completely empty room, but near the entrance there is another pair of wet footprints that begin at the closed door and lead inside. No one is there."
+}

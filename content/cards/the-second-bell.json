@@ -1,0 +1,37 @@
+{
+  "id": "the-second-bell",
+  "title": "THE SECOND BELL",
+  "message": "You will hear this again.",
+  "meaning": "The Second Bell is a situation, a conversation or a person returning a second time. The first signal passed without an answer; the second is fainter, and it is the same.\n\nThe card suggests that what you did not resolve is still ringing.",
+  "rarity": "RARE",
+  "theme": "RETURN",
+  "state": "REFLECTION",
+  "tags": [
+    "RETURN",
+    "REPETITION",
+    "SIGNAL"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "RELEASE",
+    "RENEWAL"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-bell"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 7
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 35,
+  "element": "AIR",
+  "symbol": "⌓",
+  "imageKey": "the-second-bell",
+  "imageAlt": "Two bells far apart. The first hangs perfectly still; the second sways slightly although there is no rope. A very faint repetition of a signal."
+}

@@ -1,0 +1,28 @@
+{
+  "id": "the-crossing",
+  "title": "THE CROSSING",
+  "message": "A crossing only becomes a path when you use it.",
+  "meaning": "The Crossing is possibility made physical. It does not remove the distance between two sides; it simply makes that distance traversable.\n\nWhat waits beyond remains uncertain, but the existence of a crossing means staying where you are is no longer the only option.",
+  "rarity": "COMMON",
+  "theme": "PASSAGE",
+  "state": "CHANGE",
+  "tags": [
+    "PASSAGE",
+    "TRANSITION",
+    "CHOICE"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "DISCOVERY",
+    "ACTION"
+  ],
+  "unlockConditions": [],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 25,
+  "element": "EARTH",
+  "symbol": "∷",
+  "imageKey": "the-crossing",
+  "imageAlt": "Official card artwork for The Crossing"
+}

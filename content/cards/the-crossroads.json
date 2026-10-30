@@ -1,0 +1,33 @@
+{
+  "id": "the-crossroads",
+  "title": "THE CROSSROADS",
+  "message": "Your path is about to intersect with another.",
+  "meaning": "The Crossroads is the meeting of two independent trajectories. Each road already carries fresh tracks, yet no one is in sight, and the point where they cross is the only place the two journeys can touch.\n\nThe card does not promise a meeting or a collision. It says that something moving toward you is about to share your ground.",
+  "rarity": "RARE",
+  "theme": "ENCOUNTER",
+  "state": "DISCOVERY",
+  "tags": [
+    "ENCOUNTER",
+    "INTERSECTION",
+    "CHOICE"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "REFLECTION",
+    "ACTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 7
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 35,
+  "element": "EARTH",
+  "symbol": "⨯",
+  "imageKey": "the-crossroads",
+  "imageAlt": "Two old roads meeting in a cross across a vast empty landscape. Each road carries fresh footprints, but no people are in sight."
+}

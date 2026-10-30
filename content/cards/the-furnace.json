@@ -1,0 +1,33 @@
+{
+  "id": "the-furnace",
+  "title": "THE FURNACE",
+  "message": "Pressure reveals what a material is ready to become.",
+  "meaning": "The Furnace is transformation under conditions that cannot remain comfortable. Heat does not decide what the material will become, but it removes the possibility of remaining unchanged.\n\nThe card asks whether the pressure around you is only destructive — or whether something is already taking a new form.",
+  "rarity": "RARE",
+  "theme": "PRESSURE",
+  "state": "CHANGE",
+  "tags": [
+    "PRESSURE",
+    "TRANSFORMATION",
+    "INITIATION"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "RELEASE",
+    "RENEWAL"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 6
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 36,
+  "element": "FIRE",
+  "symbol": "◭",
+  "imageKey": "the-furnace",
+  "imageAlt": "Official card artwork for The Furnace"
+}

@@ -1,0 +1,33 @@
+{
+  "id": "the-scale",
+  "title": "THE SCALE",
+  "message": "What weighs more is not always what contains more.",
+  "meaning": "The Scale is judgment confronted by an unequal measure. One side is visibly burdened while the other remains almost empty, yet balance cannot be understood from appearance alone.\n\nThe card asks what standard you are using — and whether that standard can actually measure what matters.",
+  "rarity": "RARE",
+  "theme": "JUDGMENT",
+  "state": "REFLECTION",
+  "tags": [
+    "JUDGMENT",
+    "WEIGHT",
+    "VALUE"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "ACTION",
+    "RELEASE"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 6
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 35,
+  "element": "EARTH",
+  "symbol": "⊥",
+  "imageKey": "the-scale",
+  "imageAlt": "Official card artwork for The Scale"
+}

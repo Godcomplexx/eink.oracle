@@ -1,0 +1,37 @@
+{
+  "id": "the-open-window",
+  "title": "THE OPEN WINDOW",
+  "message": "An opening will appear briefly.",
+  "meaning": "The Open Window is an opportunity that has to be noticed in time. Everything around it stays closed, and that is what makes it easy to miss.\n\nThe card asks you to watch for the one thing that is different today.",
+  "rarity": "RARE",
+  "theme": "OPPORTUNITY",
+  "state": "OPENING",
+  "tags": [
+    "OPPORTUNITY",
+    "TIMING",
+    "ATTENTION"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "DISCOVERY",
+    "ACTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-window"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 6
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 32,
+  "element": "AIR",
+  "symbol": "▯",
+  "imageKey": "the-open-window",
+  "imageAlt": "A long dark wall with a single window suddenly open. A curtain is pulled outward by a strong draft. All the other windows are shut."
+}

@@ -1,0 +1,33 @@
+{
+  "id": "the-falling-coin",
+  "title": "THE FALLING COIN",
+  "message": "A small accident may decide more than expected.",
+  "meaning": "The Falling Coin is chance changing the direction of an event. Something small lands one way instead of another, and the larger outcome follows it.\n\nThe card asks you to stay open to the result you did not plan for.",
+  "rarity": "ARCANE",
+  "theme": "CHANCE",
+  "state": "CHANGE",
+  "tags": [
+    "CHANCE",
+    "ACCIDENT",
+    "DIRECTION"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "ACTION",
+    "RELEASE"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 9
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 44,
+  "element": "EARTH",
+  "symbol": "⊚",
+  "imageKey": "the-falling-coin",
+  "imageAlt": "A coin falling between stone slabs, but its shadow shows a different position than the coin itself. One impossibility."
+}

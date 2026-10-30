@@ -1,0 +1,37 @@
+{
+  "id": "the-pale-horse",
+  "title": "THE PALE HORSE",
+  "message": "Something passed this way. That does not mean you should follow.",
+  "meaning": "The Pale Horse is evidence without a visible cause. The tracks are unmistakable, yet the thing that made them is absent — and eventually the trail continues where no ordinary path could exist.\n\nThe card asks you to notice the difference between a sign and an instruction.",
+  "rarity": "ANOMALY",
+  "theme": "OMEN",
+  "state": "DISCOVERY",
+  "tags": [
+    "OMEN",
+    "TRACE",
+    "UNCERTAINTY"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "REFLECTION",
+    "CHANGE"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-fog"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 10
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 60,
+  "element": "AETHER",
+  "symbol": "∴",
+  "imageKey": "the-pale-horse",
+  "imageAlt": "Official card artwork for The Pale Horse"
+}

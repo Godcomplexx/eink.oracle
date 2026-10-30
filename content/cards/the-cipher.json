@@ -1,0 +1,37 @@
+{
+  "id": "the-cipher",
+  "title": "THE CIPHER",
+  "message": "A pattern can be real before you know how to read it.",
+  "meaning": "The Cipher is information without immediate translation. Lines, positions and relationships appear deliberate, but the system refuses to explain itself directly.\n\nPart of the structure seems to belong to the landscape itself, making it unclear whether the diagram describes the world or the world has begun to follow the diagram.",
+  "rarity": "ARCANE",
+  "theme": "UNDERSTANDING",
+  "state": "DISCOVERY",
+  "tags": [
+    "UNDERSTANDING",
+    "PATTERN",
+    "INFORMATION"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "REFLECTION",
+    "ACTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-signal"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 9
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 44,
+  "element": "AETHER",
+  "symbol": "⌗",
+  "imageKey": "the-cipher",
+  "imageAlt": "Official card artwork for The Cipher"
+}

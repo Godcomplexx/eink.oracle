@@ -1,0 +1,37 @@
+{
+  "id": "the-false-bottom",
+  "title": "THE FALSE BOTTOM",
+  "message": "You have more room to act than you think.",
+  "meaning": "The False Bottom is a way out that comes from a possibility you have not counted. The space is there, though by every measure it cannot fit inside.\n\nThe card asks what you have assumed is solid.",
+  "rarity": "ARCANE",
+  "theme": "RESOURCEFULNESS",
+  "state": "DISCOVERY",
+  "tags": [
+    "RESOURCEFULNESS",
+    "HIDDEN",
+    "POSSIBILITY"
+  ],
+  "loreId": "escape-set",
+  "nextNodes": [
+    "ACTION",
+    "CHANGE"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-key"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 9
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 45,
+  "element": "EARTH",
+  "symbol": "⌸",
+  "imageKey": "the-false-bottom",
+  "imageAlt": "On the stage of a vast empty theatre stands a small old chest with its hidden bottom raised. Beneath it a deep staircase with several turns descends, a space that cannot physically fit inside. The floor around the chest is whole; nothing under the stage is open."
+}

@@ -1,0 +1,37 @@
+{
+  "id": "the-last-train",
+  "title": "THE LAST TRAIN",
+  "message": "The next opportunity may not wait for you.",
+  "meaning": "The Last Train is an urgent choice with a limited window. The departure is already underway, and a decision postponed is a decision made.\n\nThe card asks what you would choose if you knew there would be no later.",
+  "rarity": "ANOMALY",
+  "theme": "DECISION",
+  "state": "ACTION",
+  "tags": [
+    "DECISION",
+    "URGENCY",
+    "WINDOW"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "CHANGE",
+    "RELEASE"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-empty-platform"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 10
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 60,
+  "element": "FIRE",
+  "symbol": "⇥",
+  "imageKey": "the-last-train",
+  "imageAlt": "A long empty platform with a train almost vanishing into fog. One carriage appears twice in different places, like an error in the image."
+}

@@ -1,0 +1,37 @@
+{
+  "id": "the-unbroken-seal",
+  "title": "THE UNBROKEN SEAL",
+  "message": "You can leave without breaking everything.",
+  "meaning": "The Unbroken Seal is release that leaves the structure intact. The lid is sealed and the glass is whole, yet the restraints inside are open and something has already walked out.\n\nThe card says that freedom does not always require destroying what held you.",
+  "rarity": "ARCANE",
+  "theme": "LIBERATION",
+  "state": "RELEASE",
+  "tags": [
+    "LIBERATION",
+    "ESCAPE",
+    "RELEASE"
+  ],
+  "loreId": "escape-set",
+  "nextNodes": [
+    "RENEWAL",
+    "OPENING"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-lock"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 9
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 46,
+  "element": "WATER",
+  "symbol": "⊟",
+  "imageKey": "the-unbroken-seal",
+  "imageAlt": "In a huge dark theatre stands a closed glass tank of water. The lid is sealed and the glass is intact. Inside are empty, open shackles. Wet footprints lead from the tank across the dry floor, though the water inside is perfectly still. No one is there."
+}

@@ -1,0 +1,33 @@
+{
+  "id": "the-letter",
+  "title": "THE LETTER",
+  "message": "An answer may already be on its way.",
+  "meaning": "The Letter is news, a result or a decision that has been sent and has not yet been read. The answer exists whether or not you have opened it.\n\nThe card asks what you will do with the time before you know.",
+  "rarity": "RARE",
+  "theme": "MESSAGE",
+  "state": "DISCOVERY",
+  "tags": [
+    "MESSAGE",
+    "ANSWER",
+    "WAITING"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "REFLECTION",
+    "ACTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 6
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 33,
+  "element": "AIR",
+  "symbol": "▭",
+  "imageKey": "the-letter",
+  "imageAlt": "A single sealed envelope on a long table beside an open window, the wind just beginning to lift the edge of the paper. No text is shown."
+}

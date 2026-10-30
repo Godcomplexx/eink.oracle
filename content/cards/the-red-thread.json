@@ -1,0 +1,33 @@
+{
+  "id": "the-red-thread",
+  "title": "THE RED THREAD",
+  "message": "Two separate events are becoming connected.",
+  "meaning": "The Red Thread joins things that seemed unrelated. A pair of events, places or people will turn out to belong to one story.\n\nThe card asks you to look for the line that runs between them before it becomes obvious.",
+  "rarity": "RARE",
+  "theme": "CONNECTION",
+  "state": "DISCOVERY",
+  "tags": [
+    "CONNECTION",
+    "PATTERN",
+    "STORY"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "REFLECTION",
+    "CHANGE"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 7
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 36,
+  "element": "FIRE",
+  "symbol": "≀",
+  "imageKey": "the-red-thread",
+  "imageAlt": "In monochrome, a thin pale thread passes through several unrelated objects and places and unexpectedly links them."
+}

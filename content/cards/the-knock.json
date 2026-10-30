@@ -1,0 +1,33 @@
+{
+  "id": "the-knock",
+  "title": "THE KNOCK",
+  "message": "Something is about to ask for your attention.",
+  "meaning": "The Knock is arrival before the arrival. News, a person, an offer or an event is approaching from outside, and the first sign is only a vibration in something that was still.\n\nThe card does not say who is at the door. It asks whether you are ready to hear it.",
+  "rarity": "RARE",
+  "theme": "ARRIVAL",
+  "state": "OPENING",
+  "tags": [
+    "ARRIVAL",
+    "ATTENTION",
+    "SIGNAL"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "DISCOVERY",
+    "REFLECTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 6
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 34,
+  "element": "AIR",
+  "symbol": "⊙",
+  "imageKey": "the-knock",
+  "imageAlt": "An old closed door in a vast empty room, with faint concentric ripples spreading from a single point on its surface, as if someone had just knocked. No one is there."
+}

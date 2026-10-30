@@ -1,0 +1,28 @@
+{
+  "id": "the-shell",
+  "title": "THE SHELL",
+  "message": "Shelter does not have to last forever to have protected you.",
+  "meaning": "The Shell is protection shaped by exposure. Water, stone and time have formed a temporary refuge at the edge of something much larger.\n\nThe card asks whether a boundary that once kept you safe is still serving you — or whether you are remaining inside it simply because it is familiar.",
+  "rarity": "COMMON",
+  "theme": "PROTECTION",
+  "state": "RENEWAL",
+  "tags": [
+    "PROTECTION",
+    "BOUNDARY",
+    "SHELTER"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "OPENING",
+    "RELEASE"
+  ],
+  "unlockConditions": [],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 24,
+  "element": "WATER",
+  "symbol": "◖",
+  "imageKey": "the-shell",
+  "imageAlt": "Official card artwork for The Shell"
+}

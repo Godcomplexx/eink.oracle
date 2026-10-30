@@ -1,0 +1,37 @@
+{
+  "id": "the-ink",
+  "title": "THE INK",
+  "message": "Meaning begins where the mark stops being only a mark.",
+  "meaning": "The Ink is interpretation becoming structure. A spill that should be shapeless begins to resemble terrain, rivers and boundaries that were never deliberately drawn.\n\nThe card asks how much of what you see belongs to the world — and how much was created by your need to understand it.",
+  "rarity": "ARCANE",
+  "theme": "INTERPRETATION",
+  "state": "REFLECTION",
+  "tags": [
+    "INTERPRETATION",
+    "PATTERN",
+    "MEANING"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "DISCOVERY",
+    "ACTION"
+  ],
+  "unlockConditions": [
+    {
+      "type": "seen-card",
+      "cardId": "the-book"
+    },
+    {
+      "type": "journey-days",
+      "minimum": 8
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 41,
+  "element": "WATER",
+  "symbol": "◒",
+  "imageKey": "the-ink",
+  "imageAlt": "Official card artwork for The Ink"
+}

@@ -995,15 +995,71 @@ function journeyGraphMarkup(): string {
     const spectrum = index % 19 === 0 ? "anomaly" : index % 11 === 0 ? "rare" : index % 7 === 0 ? "houdini" : "common";
     return `<circle class="journey-graph__particle rarity-${spectrum}" cx="${x}" cy="${y}" r="${radius}" style="--particle-delay: -${index % 11}s" />`;
   }).join("");
+  const pointIndexById = new Map(points.map((point, index) => [point.record.id, index]));
+  // A row turn joins the last node of one serpentine row to the first node of the
+  // next, directly below it. Drawing that as a rounded U keeps the line from
+  // dropping straight down at the edges.
+  const isRowTurn = (from: JourneyPoint, to: JourneyPoint): boolean => {
+    const fromIndex = pointIndexById.get(from.record.id) ?? -1;
+    const toIndex = pointIndexById.get(to.record.id) ?? -1;
+    return toIndex === fromIndex + 1
+      && Math.floor(fromIndex / pointsPerCurrent) !== Math.floor(toIndex / pointsPerCurrent);
+  };
+  const tangentAt = (point: JourneyPoint): { x: number; y: number } => {
+    const index = pointIndexById.get(point.record.id) ?? 0;
+    const before = points[index - 1] ?? point;
+    const after = points[index + 1] ?? point;
+    const unit = (a: JourneyPoint, b: JourneyPoint): { x: number; y: number } => {
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const length = Math.hypot(dx, dy) || 1;
+      return { x: dx / length, y: dy / length };
+    };
+    const incoming = unit(before, point);
+    const outgoing = unit(point, after);
+    if (before !== point && after !== point) {
+      if (isRowTurn(point, after)) return { x: Math.sign(incoming.x) || 1, y: 0 };
+      if (isRowTurn(before, point)) return { x: Math.sign(outgoing.x) || -1, y: 0 };
+    }
+    const x = incoming.x + outgoing.x;
+    const y = incoming.y + outgoing.y;
+    const length = Math.hypot(x, y);
+    return length < 1e-6 ? outgoing : { x: x / length, y: y / length };
+  };
+  const smoothCurve = (from: JourneyPoint, to: JourneyPoint): { path: string; middleX: number; middleY: number } => {
+    let c1x: number;
+    let c1y: number;
+    let c2x: number;
+    let c2y: number;
+    if (isRowTurn(from, to)) {
+      const outward = Math.sign(from.x - centerX) || 1;
+      const bulge = 120;
+      const drop = (to.y - from.y) * 0.12;
+      c1x = from.x + outward * bulge;
+      c1y = from.y + drop;
+      c2x = to.x + outward * bulge;
+      c2y = to.y - drop;
+    } else {
+      const reach = Math.hypot(to.x - from.x, to.y - from.y) * 0.38;
+      const start = tangentAt(from);
+      const end = tangentAt(to);
+      c1x = from.x + start.x * reach;
+      c1y = from.y + start.y * reach;
+      c2x = to.x - end.x * reach;
+      c2y = to.y - end.y * reach;
+    }
+    return {
+      path: `M ${from.x} ${from.y} C ${c1x} ${c1y} ${c2x} ${c2y} ${to.x} ${to.y}`,
+      middleX: (from.x + 3 * c1x + 3 * c2x + to.x) / 8,
+      middleY: (from.y + 3 * c1y + 3 * c2y + to.y) / 8,
+    };
+  };
   const edges = state.graph.edges.map((edge) => {
     if (!edge.fromDrawId) return "";
     const from = pointById.get(edge.fromDrawId);
     const to = pointById.get(edge.toDrawId);
     if (!from || !to) return "";
-    const offset = ((seedFromId(edge.id) % 41) - 20) * 0.8;
-    const middleX = (from.x + to.x) / 2 + offset;
-    const middleY = (from.y + to.y) / 2 - offset;
-    const path = `M ${from.x} ${from.y} Q ${middleX} ${middleY} ${to.x} ${to.y}`;
+    const { path } = smoothCurve(from, to);
     const classes = `rarity-${to.record.rarity.toLowerCase()} ${edge.type === "RETURN" ? "is-return" : ""}`;
     return `
       <path class="journey-graph__stream ${classes}" d="${path}" />
@@ -1013,10 +1069,7 @@ function journeyGraphMarkup(): string {
     if (index === 0 || to.record.previousDrawId !== null) return "";
     const from = points[index - 1];
     if (!from) return "";
-    const offset = ((seedFromId(`branch:${to.record.id}`) % 31) - 15) * 0.7;
-    const middleX = (from.x + to.x) / 2 + offset;
-    const middleY = (from.y + to.y) / 2 - offset;
-    const path = `M ${from.x} ${from.y} Q ${middleX} ${middleY} ${to.x} ${to.y}`;
+    const { path, middleX, middleY } = smoothCurve(from, to);
     return `
       <g class="journey-graph__branch-merge" aria-hidden="true">
         <path class="journey-graph__edge is-branch-merge" d="${path}" />

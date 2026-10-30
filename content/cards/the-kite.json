@@ -1,0 +1,28 @@
+{
+  "id": "the-kite",
+  "title": "THE KITE",
+  "message": "You cannot control the wind and still call it freedom.",
+  "meaning": "The Kite is release without complete separation. It rises because something allows it to move while something else still holds the connection.\n\nThe card asks whether control is protecting what matters — or preventing it from discovering how far it could go.",
+  "rarity": "COMMON",
+  "theme": "RELEASE",
+  "state": "RELEASE",
+  "tags": [
+    "RELEASE",
+    "FREEDOM",
+    "CONNECTION"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "RENEWAL",
+    "OPENING"
+  ],
+  "unlockConditions": [],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 23,
+  "element": "AIR",
+  "symbol": "◇",
+  "imageKey": "the-kite",
+  "imageAlt": "Official card artwork for The Kite"
+}

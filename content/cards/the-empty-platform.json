@@ -1,0 +1,33 @@
+{
+  "id": "the-empty-platform",
+  "title": "THE EMPTY PLATFORM",
+  "message": "It is coming. Just not yet.",
+  "meaning": "The Empty Platform is delay without cancellation. Something is on its way, but it cannot be seen yet, and waiting is the only available action.\n\nThe card separates a postponement from a refusal.",
+  "rarity": "RARE",
+  "theme": "DELAY",
+  "state": "RENEWAL",
+  "tags": [
+    "DELAY",
+    "WAITING",
+    "PATIENCE"
+  ],
+  "loreId": null,
+  "nextNodes": [
+    "OPENING",
+    "DISCOVERY"
+  ],
+  "unlockConditions": [
+    {
+      "type": "journey-days",
+      "minimum": 6
+    }
+  ],
+  "graphEffect": {
+    "type": "none"
+  },
+  "cooldown": 34,
+  "element": "EARTH",
+  "symbol": "▁",
+  "imageKey": "the-empty-platform",
+  "imageAlt": "An empty old railway platform at night or at dawn. Far off, two pale lights are barely visible, but no train can be made out yet."
+}
