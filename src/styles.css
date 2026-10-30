@@ -2981,17 +2981,90 @@ a:focus-visible {
 .journey-screen .journey-heading {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: fit-content;
   max-width: 100%;
-  margin-top: 12px;
-  padding: 26px clamp(20px, 2.4vw, 36px) 30px;
-  /* A frosted panel in the page colour keeps the graph labels from showing
+  margin-top: 10px;
+  padding: 14px clamp(16px, 1.8vw, 24px) 16px;
+  /* A small frosted panel in the page colour keeps graph labels from showing
      through the title, in both the light and dark theme. */
   border: 1px solid var(--line);
-  background: color-mix(in srgb, var(--ink) 90%, transparent);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  background: color-mix(in srgb, var(--ink) 92%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   pointer-events: none;
+}
+
+.journey-screen .journey-heading .eyebrow {
+  margin: 0;
+  font-size: 11px;
+}
+
+.journey-screen .journey-heading h1 {
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1;
+}
+
+.journey-screen .journey-heading h1 br,
+.journey-screen .journey-intro {
+  display: none;
+}
+
+.journey-stats {
+  position: fixed;
+  top: calc(clamp(82px, 6vw, 110px) + 18px);
+  right: clamp(20px, 4vw, 68px);
+  z-index: 2;
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  text-align: right;
+  pointer-events: none;
+}
+
+.journey-stats > div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.journey-stats dd {
+  margin: 0;
+  color: var(--paper);
+  font-family: var(--gothic);
+  font-size: clamp(26px, 2.4vw, 36px);
+  line-height: 0.95;
+}
+
+.journey-stats dt {
+  color: var(--paper-muted);
+  font-family: var(--serif);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+
+/* Same soft halo as the graph labels, so they stay readable over the glow. */
+.journey-stats dd,
+.journey-stats dt {
+  text-shadow: 0 0 6px var(--ink), 0 0 14px var(--ink), 0 0 22px var(--ink);
+}
+
+@media (max-width: 760px) {
+  .journey-stats {
+    top: auto;
+    right: 50%;
+    bottom: 70px;
+    grid-auto-flow: column;
+    gap: 18px;
+    transform: translateX(50%);
+  }
+
+  .journey-stats > div {
+    align-items: center;
+  }
 }
 
 .journey-screen .journey-canvas__footer {

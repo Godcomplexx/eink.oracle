@@ -1132,13 +1132,13 @@ function renderJourney(): void {
           <p class="eyebrow"><span>MY JOURNEY</span><span>${state.currentNode}</span></p>
           <h1>THE LIVING<br />PATH</h1>
           <p class="journey-intro">Every point is one browser's daily observation. Separate paths can meet in the same archive.</p>
-          <div class="archive-summary journey-summary" aria-label="Journey summary">
-            <div><strong>${state.history.length}</strong><span>OBSERVED</span></div>
-            <div><strong>${Object.keys(state.cardsSeen).length}</strong><span>UNIQUE</span></div>
-            <div><strong>${rareCount}</strong><span>RARE EVENTS</span></div>
-            <div><strong>${state.unlockedNodes.length}</strong><span>OPEN PATHS</span></div>
-          </div>
         </section>
+        <dl class="journey-stats" aria-label="Journey summary">
+          <div><dt>OBSERVED</dt><dd>${state.history.length}</dd></div>
+          <div><dt>UNIQUE</dt><dd>${Object.keys(state.cardsSeen).length}</dd></div>
+          <div><dt>RARE EVENTS</dt><dd>${rareCount}</dd></div>
+          <div><dt>OPEN PATHS</dt><dd>${state.unlockedNodes.length}</dd></div>
+        </dl>
         <section class="journey-canvas" aria-label="Your card journey observatory">
           <div class="journey-plot__viewport" tabindex="0" role="group" aria-label="Journey board. Drag to move, scroll to zoom, or use the arrow keys and plus and minus.">
             ${graph}
@@ -1204,7 +1204,8 @@ function renderJourney(): void {
   };
   const centreOnLatest = (): void => {
     const rect = viewport.getBoundingClientRect();
-    view.k = Math.min(1, Math.max(0.55, rect.width / 1120));
+    // Two zoom-in steps closer than the old fit, so the latest cards are easier to read.
+    view.k = Math.min(MAX_K, Math.min(1, Math.max(0.55, rect.width / 1120)) * 1.25 * 1.25);
     view.x = rect.width / 2 - currentX * view.k;
     view.y = rect.height / 2 - currentY * view.k;
     apply();
