@@ -1926,12 +1926,22 @@ a:focus-visible {
 }
 
 .journey-graph {
+  /* Fade the outer margin so the glow melts into the board, with no hard edge. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 200px, #000 calc(100% - 200px), transparent),
+    linear-gradient(to bottom, transparent, #000 140px, #000 calc(100% - 140px), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 200px, #000 calc(100% - 200px), transparent),
+    linear-gradient(to bottom, transparent, #000 140px, #000 calc(100% - 140px), transparent);
+  mask-composite: intersect;
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
-  flex: none;
+  transform-origin: 0 0;
+  will-change: transform;
   width: var(--graph-w, 1120px);
   height: var(--graph-h, 620px);
   max-width: none;
-  margin-inline: auto;
   overflow: visible;
 }
 
@@ -2203,19 +2213,6 @@ a:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
-/* The living path uses the whole screen width: lift the page width cap on this
-   route and let the graph cancel the shell's side padding. */
-.app-shell:has(.journey-screen) {
-  width: 100%;
-}
-
-.journey-screen .journey-canvas {
-  margin-inline: calc(-1 * clamp(20px, 4vw, 68px));
-}
-
-.journey-screen .journey-canvas__footer {
-  padding-inline: clamp(20px, 4vw, 68px);
-}
 
 .journey-canvas__header,
 .journey-canvas__footer {
@@ -2269,19 +2266,6 @@ a:focus-visible {
   box-shadow: 0 0 8px color-mix(in srgb, var(--node-color) 72%, transparent);
 }
 
-.journey-canvas .journey-plot__viewport {
-  --graph-grid: color-mix(in srgb, var(--paper) 13%, transparent);
-  background: radial-gradient(circle, var(--graph-grid) 0 0.65px, transparent 1px) 0 0 / 15px 15px;
-  cursor: grab;
-  /* A fixed-height board scrolls inside itself in both directions. Scroll that
-     reaches an edge passes on to the page instead of getting stuck. */
-  overflow: auto;
-  height: clamp(520px, 78svh, 920px);
-  max-height: none;
-  overscroll-behavior: auto;
-  scrollbar-color: var(--line-strong) transparent;
-  -webkit-overflow-scrolling: touch;
-}
 
 .journey-legend {
   border-left: 1px solid rgba(233, 231, 220, 0.2);
@@ -2963,7 +2947,152 @@ a:focus-visible {
   }
 }
 
-.journey-canvas .journey-plot__viewport.is-panning {
+/* ---- The living path: a full-screen board ---------------------------------
+   Wheel zooms, dragging moves it in every direction, and the page text floats
+   on top. The board is moved with a transform, so there are no scrollbars. */
+.app-shell:has(.journey-screen) {
+  width: 100%;
+  height: 100svh;
+  padding: 0;
+  overflow: hidden;
+}
+
+.app-shell:has(.journey-screen) .site-header {
+  padding-inline: clamp(20px, 4vw, 68px);
+}
+
+.journey-screen.archive-screen {
+  padding: 0;
+}
+
+.journey-screen .journey-canvas {
+  position: fixed;
+  inset: clamp(82px, 6vw, 110px) 0 0;
+  z-index: 0;
+  margin: 0;
+  border: 0;
+}
+
+.journey-screen .journey-plot__viewport {
+  --graph-grid: color-mix(in srgb, var(--paper) 13%, transparent);
+  --vx: 0px;
+  --vy: 0px;
+  --vk: 1;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(circle, var(--graph-grid) 0 0.65px, transparent 1px)
+    var(--vx) var(--vy) / calc(15px * var(--vk)) calc(15px * var(--vk));
+  cursor: grab;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+.journey-screen .journey-plot__viewport.is-panning {
   cursor: grabbing;
   user-select: none;
+}
+
+.journey-screen .journey-plot__viewport:focus-visible {
+  outline: 1px solid var(--paper-muted);
+  outline-offset: -4px;
+}
+
+.journey-screen .journey-heading {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: none;
+  padding: 18px clamp(20px, 4vw, 68px) 40px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--ink) 88%, transparent), transparent);
+  pointer-events: none;
+}
+
+.journey-screen .journey-heading .eyebrow {
+  margin: 0;
+}
+
+.journey-screen .journey-heading h1 {
+  font-size: clamp(40px, 4.6vw, 68px);
+}
+
+.journey-screen .journey-intro {
+  margin: 0;
+  max-width: 520px;
+  font-size: 11px;
+}
+
+.journey-screen .journey-summary {
+  grid-template-columns: repeat(4, auto);
+  justify-content: start;
+  margin-top: 4px;
+  border: 0;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+.journey-screen .journey-summary > div {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+}
+
+.journey-screen .journey-canvas__footer {
+  position: absolute;
+  left: clamp(20px, 4vw, 68px);
+  bottom: 14px;
+  z-index: 2;
+  min-height: 0;
+  pointer-events: none;
+}
+
+.journey-board__controls {
+  position: absolute;
+  right: clamp(20px, 4vw, 68px);
+  bottom: 14px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+
+.journey-board__controls button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--ink) 80%, transparent);
+  color: var(--paper);
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.journey-board__controls button:hover {
+  border-color: var(--paper);
+}
+
+.journey-board__controls button:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 2px;
+}
+
+.app-shell:has(.journey-screen) .site-footer {
+  position: fixed;
+  right: 50%;
+  bottom: 10px;
+  z-index: 4;
+  padding: 0;
+  transform: translateX(50%);
+}
+
+@media (max-width: 760px) {
+  .journey-screen .journey-intro,
+  .journey-screen .journey-canvas__footer {
+    display: none;
+  }
+
+  .journey-screen .journey-summary {
+    grid-template-columns: repeat(2, auto);
+  }
 }

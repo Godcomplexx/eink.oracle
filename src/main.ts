@@ -194,7 +194,7 @@ if (Object.keys(browserDraws).length === 0 && state.lastDate) {
 }
 let activeHolo: HoloCard | null = null;
 let activeScreenCleanup: (() => void) | null = null;
-let journeyViewportPosition = { left: 0, top: 0 };
+let journeyView: { x: number; y: number; k: number } | null = null;
 let journeyPanCleanup: (() => void) | null = null;
 let accountUser: User | null = null;
 let accountReady = !accountServiceConfigured;
@@ -1099,8 +1099,11 @@ function journeyGraphMarkup(): string {
       </a>`;
   }).join("");
 
+  // Empty margin around the graph so the glow can fade out instead of being cut.
+  const padX = 200;
+  const padY = 140;
   return `
-    <svg class="journey-graph" style="--graph-w: ${width}px; --graph-h: ${height}px" viewBox="0 0 ${width} ${height}" data-view-width="${width}" data-view-height="${height}" data-current-x="${currentPoint?.x ?? centerX}" data-current-y="${currentPoint?.y ?? height / 2}" role="img" aria-label="Your personal card journey graph">
+    <svg class="journey-graph" style="--graph-w: ${width + padX * 2}px; --graph-h: ${height + padY * 2}px" viewBox="${-padX} ${-padY} ${width + padX * 2} ${height + padY * 2}" data-view-width="${width + padX * 2}" data-view-height="${height + padY * 2}" data-current-x="${(currentPoint?.x ?? centerX) + padX}" data-current-y="${(currentPoint?.y ?? height / 2) + padY}" role="img" aria-label="Your personal card journey graph">
       <defs>
         <filter id="journey-aura-blur" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="48" />
@@ -1135,8 +1138,13 @@ function renderJourney(): void {
           </div>
         </section>
         <section class="journey-canvas" aria-label="Your card journey observatory">
-          <div class="journey-plot__viewport">
+          <div class="journey-plot__viewport" tabindex="0" role="group" aria-label="Journey board. Drag to move, scroll to zoom, or use the arrow keys and plus and minus.">
             ${graph}
+          </div>
+          <div class="journey-board__controls" role="group" aria-label="Board zoom">
+            <button type="button" data-board="in" aria-label="Zoom in">+</button>
+            <button type="button" data-board="out" aria-label="Zoom out">&minus;</button>
+            <button type="button" data-board="fit" aria-label="Centre on the latest card">FIT</button>
           </div>
           <footer class="journey-canvas__footer">
             <span>OBSERVATION TYPE</span>
@@ -1158,70 +1166,152 @@ function renderJourney(): void {
   );
 
   const viewport = document.querySelector<HTMLElement>(".journey-plot__viewport");
-  if (viewport) {
-    requestAnimationFrame(() => {
-      const hasSavedPosition = journeyViewportPosition.left > 0 || journeyViewportPosition.top > 0;
-      if (hasSavedPosition) {
-        viewport.scrollLeft = journeyViewportPosition.left;
-        viewport.scrollTop = journeyViewportPosition.top;
-        return;
-      }
+  const graphEl = viewport?.querySelector<SVGSVGElement>(".journey-graph");
+  if (!viewport || !graphEl) return;
+  journeyPanCleanup?.();
 
-      const graph = viewport.querySelector<SVGSVGElement>(".journey-graph");
-      const viewWidth = Number(graph?.dataset.viewWidth ?? 0);
-      const viewHeight = Number(graph?.dataset.viewHeight ?? 0);
-      const currentX = Number(graph?.dataset.currentX ?? viewWidth / 2);
-      const currentY = Number(graph?.dataset.currentY ?? viewHeight / 2);
-      if (graph && viewWidth > 0 && viewHeight > 0) {
-        const renderedWidth = graph.getBoundingClientRect().width;
-        const renderedHeight = graph.getBoundingClientRect().height;
-        viewport.scrollLeft = Math.max(0, currentX / viewWidth * renderedWidth - viewport.clientWidth / 2);
-        viewport.scrollTop = Math.max(0, currentY / viewHeight * renderedHeight - viewport.clientHeight / 2);
+  const MIN_K = 0.3;
+  const MAX_K = 2.6;
+  const graphWidth = Number(graphEl.dataset.viewWidth ?? 1);
+  const graphHeight = Number(graphEl.dataset.viewHeight ?? 1);
+  const currentX = Number(graphEl.dataset.currentX ?? graphWidth / 2);
+  const currentY = Number(graphEl.dataset.currentY ?? graphHeight / 2);
+  const view = journeyView ?? { x: 0, y: 0, k: 1 };
+
+  const apply = (): void => {
+    const rect = viewport.getBoundingClientRect();
+    // Keep a slice of the graph on screen so the board can never be lost.
+    const keep = 160;
+    view.x = Math.min(rect.width - keep, Math.max(keep - graphWidth * view.k, view.x));
+    view.y = Math.min(rect.height - keep, Math.max(keep - graphHeight * view.k, view.y));
+    graphEl.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.k})`;
+    viewport.style.setProperty("--vx", `${view.x}px`);
+    viewport.style.setProperty("--vy", `${view.y}px`);
+    viewport.style.setProperty("--vk", String(view.k));
+    journeyView = { ...view };
+  };
+  const zoomAt = (px: number, py: number, factor: number): void => {
+    const next = Math.min(MAX_K, Math.max(MIN_K, view.k * factor));
+    const ratio = next / view.k;
+    view.x = px - (px - view.x) * ratio;
+    view.y = py - (py - view.y) * ratio;
+    view.k = next;
+    apply();
+  };
+  const centreOnLatest = (): void => {
+    const rect = viewport.getBoundingClientRect();
+    view.k = Math.min(1, Math.max(0.55, rect.width / 1120));
+    view.x = rect.width / 2 - currentX * view.k;
+    view.y = rect.height / 2 - currentY * view.k;
+    apply();
+  };
+  if (journeyView) apply();
+  else centreOnLatest();
+
+  const onWheel = (event: WheelEvent): void => {
+    event.preventDefault();
+    const rect = viewport.getBoundingClientRect();
+    const unit = event.deltaMode === 1 ? 16 : 1;
+    const speed = event.ctrlKey ? 0.01 : 0.0016;
+    zoomAt(event.clientX - rect.left, event.clientY - rect.top, Math.exp(-event.deltaY * unit * speed));
+  };
+
+  // Mouse drag and one-finger drag move the board in every direction; two fingers pinch.
+  const pointers = new Map<number, { x: number; y: number }>();
+  let travelled = 0;
+  let didMove = false;
+  let pinchDistance = 0;
+  const distance = (): number => {
+    const [a, b] = [...pointers.values()];
+    return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
+  };
+  const onDown = (event: PointerEvent): void => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    travelled = 0;
+    didMove = false;
+    pinchDistance = distance();
+  };
+  const onMove = (event: PointerEvent): void => {
+    const previous = pointers.get(event.pointerId);
+    if (!previous) return;
+    const next = { x: event.clientX, y: event.clientY };
+    pointers.set(event.pointerId, next);
+    if (pointers.size >= 2) {
+      const current = distance();
+      if (pinchDistance > 0 && current > 0) {
+        const [a, b] = [...pointers.values()];
+        const rect = viewport.getBoundingClientRect();
+        if (a && b) zoomAt((a.x + b.x) / 2 - rect.left, (a.y + b.y) / 2 - rect.top, current / pinchDistance);
       }
+      pinchDistance = current;
+      didMove = true;
+      return;
+    }
+    travelled += Math.hypot(next.x - previous.x, next.y - previous.y);
+    if (!didMove && travelled < 5) return;
+    didMove = true;
+    viewport.classList.add("is-panning");
+    view.x += next.x - previous.x;
+    view.y += next.y - previous.y;
+    apply();
+  };
+  const onUp = (event: PointerEvent): void => {
+    pointers.delete(event.pointerId);
+    pinchDistance = distance();
+    if (pointers.size === 0) viewport.classList.remove("is-panning");
+  };
+  const onClick = (event: MouseEvent): void => {
+    if (didMove) {
+      event.preventDefault();
+      event.stopPropagation();
+      didMove = false;
+    }
+  };
+  const onKey = (event: KeyboardEvent): void => {
+    const rect = viewport.getBoundingClientRect();
+    const step = 70;
+    const keys: Record<string, () => void> = {
+      ArrowLeft: () => { view.x += step; apply(); },
+      ArrowRight: () => { view.x -= step; apply(); },
+      ArrowUp: () => { view.y += step; apply(); },
+      ArrowDown: () => { view.y -= step; apply(); },
+      "+": () => zoomAt(rect.width / 2, rect.height / 2, 1.2),
+      "=": () => zoomAt(rect.width / 2, rect.height / 2, 1.2),
+      "-": () => zoomAt(rect.width / 2, rect.height / 2, 1 / 1.2),
+      "0": centreOnLatest,
+    };
+    const action = keys[event.key];
+    if (!action) return;
+    event.preventDefault();
+    action();
+  };
+  const onResize = (): void => apply();
+
+  viewport.addEventListener("wheel", onWheel, { passive: false });
+  viewport.addEventListener("pointerdown", onDown);
+  viewport.addEventListener("click", onClick, true);
+  viewport.addEventListener("keydown", onKey);
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+  window.addEventListener("pointercancel", onUp);
+  window.addEventListener("resize", onResize);
+  journeyPanCleanup = () => {
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    window.removeEventListener("pointercancel", onUp);
+    window.removeEventListener("resize", onResize);
+  };
+
+  document.querySelectorAll<HTMLButtonElement>("[data-board]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const rect = viewport.getBoundingClientRect();
+      const action = button.dataset.board;
+      if (action === "in") zoomAt(rect.width / 2, rect.height / 2, 1.25);
+      else if (action === "out") zoomAt(rect.width / 2, rect.height / 2, 1 / 1.25);
+      else centreOnLatest();
     });
-    // Drag the board with a mouse; touch and trackpads already scroll natively.
-    journeyPanCleanup?.();
-    let panStart: { x: number; y: number; left: number; top: number } | null = null;
-    let didPan = false;
-    const onDown = (event: PointerEvent): void => {
-      if (event.pointerType !== "mouse" || event.button !== 0) return;
-      panStart = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
-      didPan = false;
-    };
-    const onMove = (event: PointerEvent): void => {
-      if (!panStart) return;
-      if (event.buttons === 0) { panStart = null; viewport.classList.remove("is-panning"); return; }
-      const dx = event.clientX - panStart.x;
-      const dy = event.clientY - panStart.y;
-      if (!didPan && Math.hypot(dx, dy) < 5) return;
-      didPan = true;
-      viewport.classList.add("is-panning");
-      viewport.scrollLeft = panStart.left - dx;
-      viewport.scrollTop = panStart.top - dy;
-    };
-    const onUp = (): void => {
-      panStart = null;
-      viewport.classList.remove("is-panning");
-    };
-    const onClick = (event: MouseEvent): void => {
-      if (didPan) { event.preventDefault(); event.stopPropagation(); didPan = false; }
-    };
-    viewport.addEventListener("pointerdown", onDown);
-    viewport.addEventListener("click", onClick, true);
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onUp);
-    journeyPanCleanup = () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
-    };
-    viewport.querySelectorAll<HTMLAnchorElement>(".journey-graph__node").forEach((node) => {
-      node.addEventListener("click", () => {
-        journeyViewportPosition = { left: viewport.scrollLeft, top: viewport.scrollTop };
-      });
-    });
-  }
+  });
 }
 
 function renderArchiveGate(destination: "MY DECK" | "MY JOURNEY"): void {
