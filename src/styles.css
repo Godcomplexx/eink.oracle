@@ -2202,6 +2202,20 @@ a:focus-visible {
   border-bottom: 1px solid var(--line);
 }
 
+/* The living path uses the whole screen width: lift the page width cap on this
+   route and let the graph cancel the shell's side padding. */
+.app-shell:has(.journey-screen) {
+  width: 100%;
+}
+
+.journey-screen .journey-canvas {
+  margin-inline: calc(-1 * clamp(20px, 4vw, 68px));
+}
+
+.journey-screen .journey-canvas__footer {
+  padding-inline: clamp(20px, 4vw, 68px);
+}
+
 .journey-canvas__header,
 .journey-canvas__footer {
   display: flex;
