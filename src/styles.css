@@ -1926,12 +1926,13 @@ a:focus-visible {
 }
 
 .journey-graph {
-  --graph-grid: color-mix(in srgb, var(--paper) 13%, transparent);
   display: block;
-  width: 100%;
-  min-width: 760px;
-  min-height: 580px;
-  background: radial-gradient(circle, var(--graph-grid) 0 0.65px, transparent 1px) 0 0 / 15px 15px;
+  flex: none;
+  width: var(--graph-w, 1120px);
+  height: var(--graph-h, 620px);
+  max-width: none;
+  margin-inline: auto;
+  overflow: visible;
 }
 
 .journey-graph .rarity-common {
@@ -2269,11 +2270,16 @@ a:focus-visible {
 }
 
 .journey-canvas .journey-plot__viewport {
+  --graph-grid: color-mix(in srgb, var(--paper) 13%, transparent);
+  background: radial-gradient(circle, var(--graph-grid) 0 0.65px, transparent 1px) 0 0 / 15px 15px;
+  cursor: grab;
+  /* A fixed-height board scrolls inside itself in both directions. Scroll that
+     reaches an edge passes on to the page instead of getting stuck. */
   overflow: auto;
+  height: clamp(520px, 78svh, 920px);
   max-height: none;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
   scrollbar-color: var(--line-strong) transparent;
-  touch-action: pan-x pan-y;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -2781,10 +2787,6 @@ a:focus-visible {
     margin-top: 34px;
   }
 
-  .journey-graph {
-    min-width: 680px;
-  }
-
   .archive-summary {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2959,4 +2961,9 @@ a:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+.journey-canvas .journey-plot__viewport.is-panning {
+  cursor: grabbing;
+  user-select: none;
 }

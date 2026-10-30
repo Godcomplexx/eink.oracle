@@ -195,6 +195,7 @@ if (Object.keys(browserDraws).length === 0 && state.lastDate) {
 let activeHolo: HoloCard | null = null;
 let activeScreenCleanup: (() => void) | null = null;
 let journeyViewportPosition = { left: 0, top: 0 };
+let journeyPanCleanup: (() => void) | null = null;
 let accountUser: User | null = null;
 let accountReady = !accountServiceConfigured;
 let accountArchiveConnected = false;
@@ -1099,7 +1100,7 @@ function journeyGraphMarkup(): string {
   }).join("");
 
   return `
-    <svg class="journey-graph" viewBox="0 0 ${width} ${height}" data-view-width="${width}" data-view-height="${height}" data-current-x="${currentPoint?.x ?? centerX}" data-current-y="${currentPoint?.y ?? height / 2}" role="img" aria-label="Your personal card journey graph">
+    <svg class="journey-graph" style="--graph-w: ${width}px; --graph-h: ${height}px" viewBox="0 0 ${width} ${height}" data-view-width="${width}" data-view-height="${height}" data-current-x="${currentPoint?.x ?? centerX}" data-current-y="${currentPoint?.y ?? height / 2}" role="img" aria-label="Your personal card journey graph">
       <defs>
         <filter id="journey-aura-blur" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="48" />
@@ -1178,6 +1179,43 @@ function renderJourney(): void {
         viewport.scrollTop = Math.max(0, currentY / viewHeight * renderedHeight - viewport.clientHeight / 2);
       }
     });
+    // Drag the board with a mouse; touch and trackpads already scroll natively.
+    journeyPanCleanup?.();
+    let panStart: { x: number; y: number; left: number; top: number } | null = null;
+    let didPan = false;
+    const onDown = (event: PointerEvent): void => {
+      if (event.pointerType !== "mouse" || event.button !== 0) return;
+      panStart = { x: event.clientX, y: event.clientY, left: viewport.scrollLeft, top: viewport.scrollTop };
+      didPan = false;
+    };
+    const onMove = (event: PointerEvent): void => {
+      if (!panStart) return;
+      if (event.buttons === 0) { panStart = null; viewport.classList.remove("is-panning"); return; }
+      const dx = event.clientX - panStart.x;
+      const dy = event.clientY - panStart.y;
+      if (!didPan && Math.hypot(dx, dy) < 5) return;
+      didPan = true;
+      viewport.classList.add("is-panning");
+      viewport.scrollLeft = panStart.left - dx;
+      viewport.scrollTop = panStart.top - dy;
+    };
+    const onUp = (): void => {
+      panStart = null;
+      viewport.classList.remove("is-panning");
+    };
+    const onClick = (event: MouseEvent): void => {
+      if (didPan) { event.preventDefault(); event.stopPropagation(); didPan = false; }
+    };
+    viewport.addEventListener("pointerdown", onDown);
+    viewport.addEventListener("click", onClick, true);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    journeyPanCleanup = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
     viewport.querySelectorAll<HTMLAnchorElement>(".journey-graph__node").forEach((node) => {
       node.addEventListener("click", () => {
         journeyViewportPosition = { left: viewport.scrollLeft, top: viewport.scrollTop };
