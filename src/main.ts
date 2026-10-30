@@ -1103,7 +1103,7 @@ function journeyGraphMarkup(): string {
   const padX = 200;
   const padY = 140;
   return `
-    <svg class="journey-graph" style="--graph-w: ${width + padX * 2}px; --graph-h: ${height + padY * 2}px" viewBox="${-padX} ${-padY} ${width + padX * 2} ${height + padY * 2}" data-view-width="${width + padX * 2}" data-view-height="${height + padY * 2}" data-current-x="${(currentPoint?.x ?? centerX) + padX}" data-current-y="${(currentPoint?.y ?? height / 2) + padY}" role="img" aria-label="Your personal card journey graph">
+    <svg class="journey-graph" data-view-width="${width + padX * 2}" data-view-height="${height + padY * 2}" data-current-x="${(currentPoint?.x ?? centerX) + padX}" data-current-y="${(currentPoint?.y ?? height / 2) + padY}" role="img" aria-label="Your personal card journey graph">
       <defs>
         <filter id="journey-aura-blur" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="48" />
@@ -1112,10 +1112,12 @@ function journeyGraphMarkup(): string {
           <feGaussianBlur stdDeviation="8" />
         </filter>
       </defs>
-      <g class="journey-graph__auras" filter="url(#journey-aura-blur)" aria-hidden="true">${auras}</g>
-      <g aria-hidden="true">${particles}</g>
-      <g aria-hidden="true">${branchMerges}${edges}</g>
-      <g>${nodes}</g>
+      <g class="journey-world"><g transform="translate(${padX} ${padY})">
+        <g class="journey-graph__auras" filter="url(#journey-aura-blur)" aria-hidden="true">${auras}</g>
+        <g aria-hidden="true">${particles}</g>
+        <g aria-hidden="true">${branchMerges}${edges}</g>
+        <g>${nodes}</g>
+      </g></g>
     </svg>`;
 }
 
@@ -1167,7 +1169,8 @@ function renderJourney(): void {
 
   const viewport = document.querySelector<HTMLElement>(".journey-plot__viewport");
   const graphEl = viewport?.querySelector<SVGSVGElement>(".journey-graph");
-  if (!viewport || !graphEl) return;
+  const world = graphEl?.querySelector<SVGGElement>(".journey-world");
+  if (!viewport || !graphEl || !world) return;
   journeyPanCleanup?.();
 
   const MIN_K = 0.3;
@@ -1184,7 +1187,8 @@ function renderJourney(): void {
     const keep = 160;
     view.x = Math.min(rect.width - keep, Math.max(keep - graphWidth * view.k, view.x));
     view.y = Math.min(rect.height - keep, Math.max(keep - graphHeight * view.k, view.y));
-    graphEl.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.k})`;
+    // Transforming the SVG content, not the element, keeps every zoom level sharp.
+    world.setAttribute("transform", `translate(${view.x} ${view.y}) scale(${view.k})`);
     viewport.style.setProperty("--vx", `${view.x}px`);
     viewport.style.setProperty("--vy", `${view.y}px`);
     viewport.style.setProperty("--vk", String(view.k));

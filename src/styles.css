@@ -1926,23 +1926,12 @@ a:focus-visible {
 }
 
 .journey-graph {
-  /* Fade the outer margin so the glow melts into the board, with no hard edge. */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 200px, #000 calc(100% - 200px), transparent),
-    linear-gradient(to bottom, transparent, #000 140px, #000 calc(100% - 140px), transparent);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent, #000 200px, #000 calc(100% - 200px), transparent),
-    linear-gradient(to bottom, transparent, #000 140px, #000 calc(100% - 140px), transparent);
-  mask-composite: intersect;
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   display: block;
-  transform-origin: 0 0;
-  will-change: transform;
-  width: var(--graph-w, 1120px);
-  height: var(--graph-h, 620px);
-  max-width: none;
-  overflow: visible;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .journey-graph .rarity-common {
@@ -2953,16 +2942,7 @@ a:focus-visible {
 .app-shell:has(.journey-screen) {
   width: 100%;
   height: 100svh;
-  padding: 0;
   overflow: hidden;
-}
-
-.app-shell:has(.journey-screen) .site-header {
-  padding-inline: clamp(20px, 4vw, 68px);
-}
-
-.journey-screen.archive-screen {
-  padding: 0;
 }
 
 .journey-screen .journey-canvas {
@@ -3001,41 +2981,7 @@ a:focus-visible {
 .journey-screen .journey-heading {
   position: relative;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: none;
-  padding: 18px clamp(20px, 4vw, 68px) 40px;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--ink) 88%, transparent), transparent);
   pointer-events: none;
-}
-
-.journey-screen .journey-heading .eyebrow {
-  margin: 0;
-}
-
-.journey-screen .journey-heading h1 {
-  font-size: clamp(40px, 4.6vw, 68px);
-}
-
-.journey-screen .journey-intro {
-  margin: 0;
-  max-width: 520px;
-  font-size: 11px;
-}
-
-.journey-screen .journey-summary {
-  grid-template-columns: repeat(4, auto);
-  justify-content: start;
-  margin-top: 4px;
-  border: 0;
-  gap: clamp(16px, 3vw, 40px);
-}
-
-.journey-screen .journey-summary > div {
-  min-height: 0;
-  padding: 0;
-  border: 0;
 }
 
 .journey-screen .journey-canvas__footer {
@@ -3084,15 +3030,4 @@ a:focus-visible {
   z-index: 4;
   padding: 0;
   transform: translateX(50%);
-}
-
-@media (max-width: 760px) {
-  .journey-screen .journey-intro,
-  .journey-screen .journey-canvas__footer {
-    display: none;
-  }
-
-  .journey-screen .journey-summary {
-    grid-template-columns: repeat(2, auto);
-  }
 }
